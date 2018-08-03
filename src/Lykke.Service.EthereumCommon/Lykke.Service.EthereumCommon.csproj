@@ -1,0 +1,14 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="Lykke.Common" Version="7.0.2" />
+    <PackageReference Include="Lykke.Sdk" Version="4.1.1" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Lykke.Service.EthereumCommon.AzureRepositories\Lykke.Service.EthereumCommon.AzureRepositories.csproj" />
+    <ProjectReference Include="..\Lykke.Service.EthereumCommon.Core\Lykke.Service.EthereumCommon.Core.csproj" />
+    <ProjectReference Include="..\Lykke.Service.EthereumCommon.Services\Lykke.Service.EthereumCommon.Services.csproj" />
+  </ItemGroup>
+</Project>

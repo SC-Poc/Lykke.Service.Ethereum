@@ -1,0 +1,17 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <AssemblyName>Lykke.Service.EthereumWorker.Services</AssemblyName>
+    <RootNamespace>Lykke.Service.EthereumWorker.Services</RootNamespace>
+    <Version>1.0.0</Version>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="Lykke.Common" Version="7.0.2" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Lykke.Service.EthereumCommon.Services\Lykke.Service.EthereumCommon.Services.csproj" />
+    <ProjectReference Include="..\Lykke.Service.EthereumWorker.AzureRepositories\Lykke.Service.EthereumWorker.AzureRepositories.csproj" />
+    <ProjectReference Include="..\Lykke.Service.EthereumWorker.Core\Lykke.Service.EthereumWorker.Core.csproj" />
+    <ProjectReference Include="..\Lykke.Service.EthereumCommon.AzureRepositories\Lykke.Service.EthereumCommon.AzureRepositories.csproj" />
+  </ItemGroup>
+</Project>
