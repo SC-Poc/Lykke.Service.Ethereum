@@ -2,7 +2,7 @@
 using Lykke.AzureStorage.Tables.Entity.Metamodel;
 using Lykke.AzureStorage.Tables.Entity.Metamodel.Providers;
 using Lykke.Service.EthereumCommon.AzureRepositories.Serializers;
-using Lykke.Service.EthereumCommon.Core;
+
 
 namespace Lykke.Service.EthereumCommon.AzureRepositories
 {

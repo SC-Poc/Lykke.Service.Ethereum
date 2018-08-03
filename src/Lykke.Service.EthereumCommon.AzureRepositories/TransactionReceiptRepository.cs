@@ -15,7 +15,6 @@ using Lykke.Service.EthereumCommon.Core.Domain;
 using Lykke.Service.EthereumCommon.Core.Repositories;
 using Lykke.SettingsReader;
 using Microsoft.WindowsAzure.Storage.Table;
-using Nethereum.Hex.HexConvertors.Extensions;
 using Newtonsoft.Json;
 
 namespace Lykke.Service.EthereumCommon.AzureRepositories

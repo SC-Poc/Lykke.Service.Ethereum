@@ -168,7 +168,7 @@ namespace Lykke.Service.EthereumCommon.Core.Domain
         {
             if (State != TransactionState.Deleted)
             {
-                DeletedOn = DateTime.UtcNow;;
+                DeletedOn = DateTime.UtcNow;
                 State = TransactionState.Deleted;
             }
         }

@@ -1,6 +1,6 @@
 ﻿using System.Numerics;
 using Lykke.AzureStorage.Tables;
-using Lykke.Service.EthereumCommon.Core;
+
 
 namespace Lykke.Service.EthereumCommon.AzureRepositories.Entities
 {

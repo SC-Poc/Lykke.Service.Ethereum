@@ -28,7 +28,6 @@
     <PackageReference Include="Microsoft.AspNetCore.StaticFiles" Version="2.1.1" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Lykke.Service.EthereumCommon\Lykke.Service.EthereumCommon.csproj" />
     <ProjectReference Include="..\Lykke.Service.EthereumSignApi.Core\Lykke.Service.EthereumSignApi.Core.csproj" />
     <ProjectReference Include="..\Lykke.Service.EthereumSignApi.Services\Lykke.Service.EthereumSignApi.Services.csproj" />
   </ItemGroup>

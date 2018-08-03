@@ -10,7 +10,6 @@ using Lykke.Service.EthereumApi.Models;
 using Lykke.Service.EthereumCommon.Core;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Nethereum.Hex.HexConvertors.Extensions;
 
 namespace Lykke.Service.EthereumApi.Controllers
 {

@@ -139,8 +139,8 @@ namespace Lykke.Service.EthereumWorker.Services
             return indexedBlocks;
         }
 
-        private async Task<bool> IndexBlockAsync(
-            BigInteger blockNumer)
+        private Task<bool> IndexBlockAsync(
+            BigInteger blockNumber)
         {
             throw new NotImplementedException();
         }

@@ -7,7 +7,6 @@ using Common;
 using JetBrains.Annotations;
 using Lykke.Common.Log;
 using Lykke.Service.EthereumCommon.AzureRepositories.Entities;
-using Lykke.Service.EthereumCommon.Core;
 using Lykke.Service.EthereumCommon.Core.Domain;
 using Lykke.Service.EthereumCommon.Core.Repositories;
 using Lykke.SettingsReader;

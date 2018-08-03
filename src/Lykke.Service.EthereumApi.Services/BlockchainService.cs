@@ -10,19 +10,19 @@ namespace Lykke.Service.EthereumApi.Services
     [UsedImplicitly]
     public class BlockchainService : IBlockchainService
     {
-        public async Task<BigInteger> GetBalanceAsync(
+        public Task<BigInteger> GetBalanceAsync(
             string address)
         {
             throw new NotImplementedException();
         }
 
-        public async Task<string> BroadcastTransactionAsync(
+        public Task<string> BroadcastTransactionAsync(
             string signedTxData)
         {
             throw new NotImplementedException();
         }
 
-        public async Task<string> BuildTransactionAsync(
+        public Task<string> BuildTransactionAsync(
             string to,
             BigInteger amount)
         {
