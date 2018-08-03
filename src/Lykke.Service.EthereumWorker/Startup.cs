@@ -1,6 +1,7 @@
 ﻿using System;
 using JetBrains.Annotations;
 using Lykke.Sdk;
+using Lykke.Service.EthereumCommon.Core;
 using Lykke.Service.EthereumWorker.Settings;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
@@ -24,14 +25,14 @@ namespace Lykke.Service.EthereumWorker
                 options.Logs = logs =>
                 {
                     logs.AzureTableName 
-                        = "EthereumWorkerLog";
+                        = $"{Constants.BlockchainId}WorkerLog";
                     
                     logs.AzureTableConnectionStringResolver =
-                        settings => settings.EthereumWorkerService.Db.LogsConnString;
+                        settings => settings.WorkerService.Db.LogsConnString;
                 };
                 options.SwaggerOptions = new LykkeSwaggerOptions
                 {
-                    ApiTitle = "Ethereum Worker Api"
+                    ApiTitle = $"{Constants.BlockchainName} Worker Api"
                 };
             });
         }

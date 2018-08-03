@@ -4,7 +4,25 @@
     {
         public const int AssetAccuracy = 18;
         
+        #if CLASSIC
+
+        public const string AssetId = "ETC";
+    
+        public const string BlockchainId = "EthereumClassic";
+    
+        public const string BlockchainName = "Ethereum Classic";
+
+        #else
+        
         public const string AssetId = "ETH";
+        
+        public const string BlockchainId = "Ethereum";
+        
+        public const string BlockchainName = "Ethereum";
+        
+        #endif
+        
+        
         
         #if DEBUG
         

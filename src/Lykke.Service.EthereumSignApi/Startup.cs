@@ -1,6 +1,7 @@
 ﻿using System;
 using JetBrains.Annotations;
 using Lykke.Sdk;
+using Lykke.Service.EthereumCommon.Core;
 using Lykke.Service.EthereumSignApi.Settings;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
@@ -17,14 +18,14 @@ namespace Lykke.Service.EthereumSignApi
                 options.Logs = logs =>
                 {
                     logs.AzureTableName 
-                        = "EthereumSignApiLog";
+                        = $"{Constants.BlockchainId}SignApiLog";
                     
                     logs.AzureTableConnectionStringResolver =
-                        settings => settings.EthereumSignApiService.Db.LogsConnString;
+                        settings => settings.SignApiService.Db.LogsConnString;
                 };
                 options.SwaggerOptions = new LykkeSwaggerOptions
                 {
-                    ApiTitle = "Ethereum Sign Api"
+                    ApiTitle = $"{Constants.BlockchainName} Sign Api"
                 };
             });
         }

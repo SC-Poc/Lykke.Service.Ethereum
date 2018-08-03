@@ -6,6 +6,6 @@ namespace Lykke.Service.EthereumApi.Settings
     [UsedImplicitly(ImplicitUseTargetFlags.WithMembers)]
     public class AppSettings : BaseAppSettings
     {
-        public EthereumApiSettings EthereumApiService { get; set; }        
+        public ApiSettings ApiService { get; set; }        
     }
 }

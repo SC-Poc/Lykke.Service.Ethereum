@@ -3,7 +3,7 @@
 namespace Lykke.Service.EthereumSignApi.Settings
 {
     [UsedImplicitly(ImplicitUseTargetFlags.WithMembers)]
-    public class EthereumSignApiSettings
+    public class SignApiSettings
     {
         public DbSettings Db { get; set; }
     }

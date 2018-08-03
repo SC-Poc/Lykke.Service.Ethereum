@@ -1,9 +1,9 @@
 ﻿using JetBrains.Annotations;
 
-namespace Lykke.Service.EthereumApi.Settings
+namespace Lykke.Service.EthereumWorker.Settings
 {
     [UsedImplicitly(ImplicitUseTargetFlags.WithMembers)]
-    public class EthereumApiSettings
+    public class WorkerSettings
     {
         public DbSettings Db { get; set; }
     }
