@@ -11,20 +11,20 @@ namespace Lykke.Service.EthereumApi.Core.Services
     {
         [ItemNotNull]
         Task<BuildTransactionResult> BuildTransactionAsync(
-            Guid operationId,
+            Guid transactionId,
             [NotNull] string from,
             [NotNull] string to,
             BigInteger amount);
 
         [ItemNotNull]
         Task<BroadcastTransactionResult> BroadcastTransactionAsync(
-            Guid operationId,
+            Guid transactionId,
             [NotNull] string signedTxData);
 
         Task<bool> DeleteTransactionIfExistsAsync(
-            Guid operationId);
+            Guid transactionId);
         
         Task<Transaction> TryGetTransactionAsync(
-            Guid operationId);
+            Guid transactionId);
     }
 }

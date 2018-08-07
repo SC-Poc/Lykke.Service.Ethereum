@@ -1,10 +1,11 @@
-﻿using JetBrains.Annotations;
+﻿using System.Threading.Tasks;
+using JetBrains.Annotations;
 
 namespace Lykke.Service.EthereumApi.Core.Services
 {
     public interface IAddressService
     {
-        bool Validate(
+        Task<bool> ValidateAsync(
             [NotNull] string address);
     }
 }

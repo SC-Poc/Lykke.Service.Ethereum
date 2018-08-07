@@ -28,9 +28,9 @@ namespace Lykke.Service.EthereumWorker.Services
 
         
         public async Task<bool> CheckAndUpdateStateAsync(
-            Guid operationId)
+            Guid transactionId)
         {
-            var transaction = await _transactionRepository.TryGetAsync(operationId);
+            var transaction = await _transactionRepository.TryGetAsync(transactionId);
             var transactionCompleted = true;
 
             if (transaction?.State == TransactionState.InProgress)

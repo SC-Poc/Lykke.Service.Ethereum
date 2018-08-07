@@ -10,17 +10,17 @@ namespace Lykke.Service.EthereumCommon.Core.Domain
             DateTime builtOn,
             string data,
             string from,
-            Guid operationId,
             TransactionState state,
-            string to)
+            string to,
+            Guid transactionId)
         {
             Amount = amount;
             BuiltOn = builtOn;
+            Data = data;
             From = from;
-            OperationId = operationId;
             State = state;
             To = to;
-            Data = data;
+            TransactionId = transactionId;
         }
 
         internal Transaction(
@@ -33,11 +33,11 @@ namespace Lykke.Service.EthereumCommon.Core.Domain
             DateTime? deletedOn,
             string error,
             string from,
-            Guid operationId,
+            string hash,
             string signedData,
             TransactionState state,
             string to,
-            string hash)
+            Guid transactionId)
         {
             Amount = amount;
             BlockNumber = blockNumber;
@@ -48,15 +48,15 @@ namespace Lykke.Service.EthereumCommon.Core.Domain
             DeletedOn = deletedOn;
             Error = error;
             From = from;
-            OperationId = operationId;
+            Hash = hash;
             SignedData = signedData;
             State = state;
             To = to;
-            Hash = hash;
+            TransactionId = transactionId;
         }
         
         public static Transaction Build(
-            Guid operationId,
+            Guid transactionId,
             string from,
             string to,
             BigInteger amount,
@@ -68,7 +68,7 @@ namespace Lykke.Service.EthereumCommon.Core.Domain
                 builtOn: DateTime.UtcNow,
                 data: data,
                 from: from,
-                operationId: operationId,
+                transactionId: transactionId,
                 state: TransactionState.Built,
                 to: to
             );
@@ -95,16 +95,15 @@ namespace Lykke.Service.EthereumCommon.Core.Domain
         public string From { get; }
 
         public string Hash { get; private set; }
-        
-        public Guid OperationId { get; }
 
         public string SignedData { get; private set; }
 
         public TransactionState State { get; private set; }
 
         public string To { get; }
-
         
+        public Guid TransactionId { get; }
+
 
         public void OnBroadcasted(
             string signedData,
@@ -113,9 +112,9 @@ namespace Lykke.Service.EthereumCommon.Core.Domain
             if (State == TransactionState.Built)
             {
                 BroadcastedOn = DateTime.UtcNow;
+                Hash = hash;
                 SignedData = signedData;
                 State = TransactionState.InProgress;
-                Hash = hash;
             }
             else
             {

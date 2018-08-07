@@ -7,7 +7,7 @@ namespace Lykke.Service.EthereumWorker.Core.Services
     public interface ITransactionMonitoringService
     {
         Task<bool> CheckAndUpdateStateAsync(
-            Guid operationId);
+            Guid transactionId);
         
         Task CompleteMonitoringTaskAsync(
             string completionToken);

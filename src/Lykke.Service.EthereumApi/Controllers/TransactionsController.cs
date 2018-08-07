@@ -30,7 +30,7 @@ namespace Lykke.Service.EthereumApi.Controllers
         {
             var buildResult = await _transactionService.BuildTransactionAsync
             (
-                operationId: request.OperationId,
+                transactionId: request.OperationId,
                 from: request.FromAddress,
                 to: request.ToAddress,
                 amount: BigInteger.Parse(request.Amount)
@@ -60,7 +60,7 @@ namespace Lykke.Service.EthereumApi.Controllers
                     case BuildTransactionError.TransactionHasBeenBroadcasted:
                         return Conflict(
                             BlockchainErrorResponse.FromUnknownError
-                                ($"Transaction for specified operation [{request.OperationId}] has already been broadcasted."));
+                                ($"Transaction with specified id [{request.OperationId}] has already been broadcasted."));
                     
                     case BuildTransactionError.TransactionHasBeenDeleted:
                         return Conflict(
@@ -84,8 +84,8 @@ namespace Lykke.Service.EthereumApi.Controllers
         {
             var broadcastResult = await _transactionService.BroadcastTransactionAsync
             (
-                request.OperationId,
-                request.SignedTransaction
+                transactionId: request.OperationId,
+                signedTxData: request.SignedTransaction
             );
 
             if (broadcastResult is BroadcastTransactionResult.TransactionHash)
@@ -109,12 +109,12 @@ namespace Lykke.Service.EthereumApi.Controllers
                     case BroadcastTransactionError.TransactionHasBeenBroadcasted:
                         return Conflict(
                             BlockchainErrorResponse.FromUnknownError
-                                ($"Transaction for specified operation [{request.OperationId}] has already been broadcasted."));
+                                ($"Transaction with specified id [{request.OperationId}] has already been broadcasted."));
                     
                     case BroadcastTransactionError.TransactionHasBeenDeleted:
                         return Conflict(
                             BlockchainErrorResponse.FromUnknownError
-                                ($"Transaction for specified operation [{request.OperationId}] has already been deleted."));
+                                ($"Transaction with specified id [{request.OperationId}] has already been deleted."));
                     
                     case BroadcastTransactionError.TransactionShouldBeRebuilt:
                         return BadRequest(
@@ -135,14 +135,11 @@ namespace Lykke.Service.EthereumApi.Controllers
             }
         }
 
-        [HttpGet("broadcast/single/{operationId:guid}")]
+        [HttpGet("broadcast/single/{transactionId:guid}")]
         public async Task<ActionResult<BroadcastedSingleTransactionResponse>> GetSingleTransactionState(
-            OperationRequest request)
+            TransactionRequest request)
         {
-            var txState = await _transactionService.TryGetTransactionAsync
-            (
-                request.OperationId
-            );
+            var txState = await _transactionService.TryGetTransactionAsync(request.TransactionId);
 
             if (txState != null)
             {
@@ -191,11 +188,11 @@ namespace Lykke.Service.EthereumApi.Controllers
             }
         }
 
-        [HttpDelete("broadcast/{operationId:guid}")]
+        [HttpDelete("broadcast/{transactionId:guid}")]
         public async Task<IActionResult> DeleteTransactionState(
-            OperationRequest request)
+            TransactionRequest request)
         {
-            if (await _transactionService.DeleteTransactionIfExistsAsync(request.OperationId))
+            if (await _transactionService.DeleteTransactionIfExistsAsync(request.TransactionId))
             {
                 return Ok();
             }
@@ -222,14 +219,14 @@ namespace Lykke.Service.EthereumApi.Controllers
             [FromBody] BuildTransactionWithManyOutputsRequest request)
                 => StatusCode(StatusCodes.Status501NotImplemented);
         
-        [HttpGet("broadcast/many-inputs/{operationId:guid}")]
+        [HttpGet("broadcast/many-inputs/{transactionId:guid}")]
         public ActionResult GetManyInputsTransactionState(
-            OperationRequest request)
+            TransactionRequest request)
                 => StatusCode(StatusCodes.Status501NotImplemented);
 
-        [HttpGet("broadcast/many-outputs/{operationId:guid}")]
+        [HttpGet("broadcast/many-outputs/{transactionId:guid}")]
         public ActionResult GetManyOutputsTransactionState(
-            OperationRequest request)
+            TransactionRequest request)
                 => StatusCode(StatusCodes.Status501NotImplemented);
 
         [HttpPut]

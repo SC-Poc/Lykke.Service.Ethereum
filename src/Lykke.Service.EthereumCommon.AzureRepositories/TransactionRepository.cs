@@ -53,7 +53,7 @@ namespace Lykke.Service.EthereumCommon.AzureRepositories
                 DeletedOn = transaction.DeletedOn,
                 Error = transaction.Error,
                 From = transaction.From,
-                OperationId = transaction.OperationId,
+                TransactionId = transaction.TransactionId,
                 SignedData = transaction.SignedData,
                 State = transaction.State,
                 To = transaction.To,
@@ -64,9 +64,9 @@ namespace Lykke.Service.EthereumCommon.AzureRepositories
         }
 
         public async Task<Transaction> TryGetAsync(
-            Guid operationId)
+            Guid transactionId)
         {
-            var (partitionKey, rowKey) = GetTransactionKeys(operationId);
+            var (partitionKey, rowKey) = GetTransactionKeys(transactionId);
 
             var transactionEntity = await _transactions.GetDataAsync
             (
@@ -87,11 +87,11 @@ namespace Lykke.Service.EthereumCommon.AzureRepositories
                     deletedOn: transactionEntity.DeletedOn,
                     error: transactionEntity.Error,
                     from: transactionEntity.From,
-                    operationId: transactionEntity.OperationId,
+                    hash: transactionEntity.Hash,
+                    transactionId: transactionEntity.TransactionId,
                     signedData: transactionEntity.SignedData,
                     state: transactionEntity.State,
-                    to: transactionEntity.To,
-                    hash: transactionEntity.Hash
+                    to: transactionEntity.To
                 );
             }
             else
@@ -114,16 +114,16 @@ namespace Lykke.Service.EthereumCommon.AzureRepositories
                 entity.DeletedOn = transaction.DeletedOn;
                 entity.Error = transaction.Error;
                 entity.From = transaction.From;
-                entity.OperationId = transaction.OperationId;
+                entity.Hash = transaction.Hash;
                 entity.SignedData = transaction.SignedData;
                 entity.State = transaction.State;
                 entity.To = transaction.To;
-                entity.Hash = transaction.Hash;
+                entity.TransactionId = transaction.TransactionId;
 
                 return entity;
             }
 
-            var (partitionKey, rowKey) = GetTransactionKeys(transaction.OperationId);
+            var (partitionKey, rowKey) = GetTransactionKeys(transaction.TransactionId);
 
             await _transactions.MergeAsync
             (
@@ -137,9 +137,9 @@ namespace Lykke.Service.EthereumCommon.AzureRepositories
         #region Key Builders
         
         private static (string PartitionKey, string RowKey) GetTransactionKeys(
-            Guid operationId)
+            Guid transactionId)
         {
-            return (operationId.ToString().CalculateHexHash32(3), operationId.ToString());
+            return (transactionId.ToString().CalculateHexHash32(3), transactionId.ToString());
         }
         
         #endregion

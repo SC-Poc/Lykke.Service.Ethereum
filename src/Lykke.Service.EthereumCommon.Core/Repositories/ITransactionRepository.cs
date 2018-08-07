@@ -12,7 +12,7 @@ namespace Lykke.Service.EthereumCommon.Core.Repositories
 
         [ItemCanBeNull]
         Task<Transaction> TryGetAsync(
-            Guid operationId);
+            Guid transactionId);
 
         Task UpdateAsync(
             [NotNull] Transaction transaction);

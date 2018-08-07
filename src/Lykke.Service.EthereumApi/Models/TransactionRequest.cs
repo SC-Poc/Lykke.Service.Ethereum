@@ -5,9 +5,9 @@ using Microsoft.AspNetCore.Mvc;
 namespace Lykke.Service.EthereumApi.Models
 {
     [UsedImplicitly(ImplicitUseTargetFlags.WithMembers)]
-    public class OperationRequest
+    public class TransactionRequest
     {
         [FromRoute]
-        public Guid OperationId { get; set; }
+        public Guid TransactionId { get; set; }
     }
 }

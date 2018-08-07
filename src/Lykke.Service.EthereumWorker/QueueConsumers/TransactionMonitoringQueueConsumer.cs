@@ -36,7 +36,7 @@ namespace Lykke.Service.EthereumWorker.QueueConsumers
             var task = taskAndCompletionToken.Item1;
             var completionToken = taskAndCompletionToken.Item2;
 
-            if (await _transactionMonitoringService.CheckAndUpdateStateAsync(task.OperationId))
+            if (await _transactionMonitoringService.CheckAndUpdateStateAsync(task.TransactionId))
             {
                 await _transactionMonitoringService.CompleteMonitoringTaskAsync(completionToken);
             }

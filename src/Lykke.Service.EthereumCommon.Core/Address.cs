@@ -3,7 +3,6 @@ using System.Text;
 using System.Text.RegularExpressions;
 using JetBrains.Annotations;
 using Lykke.Service.EthereumCommon.Core.Crypto;
-using Nethereum.Hex.HexConvertors.Extensions;
 
 namespace Lykke.Service.EthereumCommon.Core
 {

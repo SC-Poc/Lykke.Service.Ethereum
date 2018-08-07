@@ -4,6 +4,6 @@ namespace Lykke.Service.EthereumCommon.Core.Domain
 {
     public class TransactionMonitoringTask
     {
-        public Guid OperationId { get; set; }
+        public Guid TransactionId { get; set; }
     }
 }

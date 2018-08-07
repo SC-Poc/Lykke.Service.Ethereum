@@ -33,7 +33,7 @@ namespace Lykke.Service.EthereumApi.Services
 
         
         public async Task<BuildTransactionResult> BuildTransactionAsync(
-            Guid operationId,
+            Guid transactionId,
             string from,
             string to,
             BigInteger amount)
@@ -43,7 +43,7 @@ namespace Lykke.Service.EthereumApi.Services
                 return BuildTransactionResult.AmountIsTooSmall;
             }
             
-            var transaction = await _transactionRepository.TryGetAsync(operationId);
+            var transaction = await _transactionRepository.TryGetAsync(transactionId);
 
             if (transaction == null)
             {
@@ -56,7 +56,7 @@ namespace Lykke.Service.EthereumApi.Services
 
                 transaction = Transaction.Build
                 (
-                    operationId: operationId,
+                    transactionId: transactionId,
                     from: from,
                     to: to,
                     amount: amount,
@@ -89,10 +89,10 @@ namespace Lykke.Service.EthereumApi.Services
         }
 
         public async Task<BroadcastTransactionResult> BroadcastTransactionAsync(
-            Guid operationId,
+            Guid transactionId,
             string signedTxData)
         {
-            var transaction = await _transactionRepository.TryGetAsync(operationId);
+            var transaction = await _transactionRepository.TryGetAsync(transactionId);
 
             if (transaction != null)
             {
@@ -126,7 +126,7 @@ namespace Lykke.Service.EthereumApi.Services
                         (
                             new TransactionMonitoringTask
                             {
-                                OperationId = operationId
+                                TransactionId = transactionId
                             }
                         );
                         
@@ -146,14 +146,14 @@ namespace Lykke.Service.EthereumApi.Services
             }
             else
             {
-                return BroadcastTransactionResult.OperationHasNotBeenFoun;
+                return BroadcastTransactionResult.OperationHasNotBeenFound;
             }
         }
 
         public async Task<bool> DeleteTransactionIfExistsAsync(
-            Guid operationId)
+            Guid transactionId)
         {
-            var transaction = await _transactionRepository.TryGetAsync(operationId);
+            var transaction = await _transactionRepository.TryGetAsync(transactionId);
 
             if (transaction != null)
             {
@@ -170,9 +170,9 @@ namespace Lykke.Service.EthereumApi.Services
         }
 
         public Task<Transaction> TryGetTransactionAsync(
-            Guid operationId)
+            Guid transactionId)
         {
-            return _transactionRepository.TryGetAsync(operationId);
+            return _transactionRepository.TryGetAsync(transactionId);
         }
     }
 }

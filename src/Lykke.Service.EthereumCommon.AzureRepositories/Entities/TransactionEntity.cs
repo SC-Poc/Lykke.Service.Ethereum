@@ -26,13 +26,13 @@ namespace Lykke.Service.EthereumCommon.AzureRepositories.Entities
         public string From { get; set; }
 
         public string Hash { get; set; }
-        
-        public Guid OperationId { get; set; }
 
         public string SignedData { get; set; }
 
         public TransactionState State { get; set; }
 
         public string To { get; set; }
+        
+        public Guid TransactionId { get; set; }
     }
 }

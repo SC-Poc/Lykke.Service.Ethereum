@@ -1,4 +1,5 @@
-﻿using JetBrains.Annotations;
+﻿using System.Threading.Tasks;
+using JetBrains.Annotations;
 using Lykke.Service.BlockchainApi.Contract.Addresses;
 using Lykke.Service.EthereumApi.Models;
 using Lykke.Service.EthereumApi.Core.Services;
@@ -21,12 +22,12 @@ namespace Lykke.Service.EthereumApi.Controllers
 
 
         [HttpGet("{address}/validity")]
-        public ActionResult<AddressValidationResponse> GetAddressValidity(
+        public async Task<ActionResult<AddressValidationResponse>> GetAddressValidity(
             string address)
         {
             return new AddressValidationResponse
             {
-                IsValid = _addressService.Validate(address)
+                IsValid = await _addressService.ValidateAsync(address)
             };
         }
 

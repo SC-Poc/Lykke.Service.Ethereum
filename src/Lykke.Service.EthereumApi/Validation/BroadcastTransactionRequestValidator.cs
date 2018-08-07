@@ -10,7 +10,7 @@ namespace Lykke.Service.EthereumApi.Validation
         public BroadcastTransactionRequestValidator()
         {
             RuleFor(x => x.OperationId)
-                .OperationIdMustBeNonEmptyGuid();
+                .TransactionIdMustBeNonEmptyGuid();
             
             RuleFor(x => x.SignedTransaction)
                 .MustBeHexString();

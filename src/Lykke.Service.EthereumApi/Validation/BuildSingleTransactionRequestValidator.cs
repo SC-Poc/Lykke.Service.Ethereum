@@ -16,7 +16,7 @@ namespace Lykke.Service.EthereumApi.Validation
                 .AddressMustBeValid();
             
             RuleFor(x => x.OperationId)
-                .OperationIdMustBeNonEmptyGuid();
+                .TransactionIdMustBeNonEmptyGuid();
 
             RuleFor(x => x.ToAddress)
                 .AddressMustBeValid();

@@ -20,7 +20,7 @@ namespace Lykke.Service.EthereumApi.Core.Domain
         public static readonly Error TransactionShouldBeRebuilt 
             = new Error(BroadcastTransactionError.TransactionHasBeenDeleted);
         
-        public static readonly Error OperationHasNotBeenFoun 
+        public static readonly Error OperationHasNotBeenFound 
             = new Error(BroadcastTransactionError.TransactionShouldBeRebuilt);
         
         public static TransactionHash Success(string hash)
