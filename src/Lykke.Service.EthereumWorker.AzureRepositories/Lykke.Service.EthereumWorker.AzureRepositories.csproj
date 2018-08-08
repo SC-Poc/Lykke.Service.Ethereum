@@ -1,6 +1,9 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
+    <AssemblyName>Lykke.Service.EthereumWorker.AzureRepositories</AssemblyName>
+    <RootNamespace>Lykke.Service.EthereumWorker.AzureRepositories</RootNamespace>
+    <Version>1.0.1</Version>
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="..\Lykke.Service.EthereumCommon.AzureRepositories\Lykke.Service.EthereumCommon.AzureRepositories.csproj" />
