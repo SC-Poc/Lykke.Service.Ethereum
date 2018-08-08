@@ -1,7 +1,6 @@
 SignApiService:
   Db:
     LogsConnString:
-      settings-key: Ethereum-LogsConnString
+      settings-key: LogsConnString
       types:
         - AzureTableStorage
-        - Tag
