@@ -17,11 +17,22 @@ namespace Lykke.Service.EthereumSignApi
             {
                 options.Logs = logs =>
                 {
+                    
+#if ENABLE_LOGGING
+
                     logs.AzureTableName 
                         = $"{Constants.BlockchainId}SignApiLog";
                     
                     logs.AzureTableConnectionStringResolver =
                         settings => settings.SignApiService.Db.LogsConnString;
+    
+#else
+                    
+                    // We should not log anything in production environment for security reasons
+                    logs.UseEmptyLogging();
+
+#endif
+                    
                 };
                 options.SwaggerOptions = new LykkeSwaggerOptions
                 {
