@@ -4,3 +4,16 @@ SignApiService:
       settings-key: LogsConnString
       types:
         - AzureTableStorage
+MonitoringServiceClient:
+    MonitoringServiceUrl:
+        settings-key: MonitoringServiceUrl
+SlackNotifications: 
+    AzureQueue:
+        ConnectionString:
+            settings-key: SlackNotificationsConnString
+            types: 
+                - AzureTableStorage
+        QueueName: 
+            settings-key: SlackNotificationsQueueName
+    ThrottlingLimitSeconds: 
+        settings-key: SlackNotificationsThrottlingLimit
