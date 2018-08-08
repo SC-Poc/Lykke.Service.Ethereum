@@ -9,6 +9,7 @@ using Common.Log;
 using JetBrains.Annotations;
 using Lykke.Common.Log;
 using Lykke.Service.EthereumCommon.Core.Repositories;
+using Lykke.Service.EthereumWorker.Core.Domain;
 using Lykke.Service.EthereumWorker.Core.Repositories;
 using Lykke.Service.EthereumWorker.Core.Services;
 
@@ -139,10 +140,42 @@ namespace Lykke.Service.EthereumWorker.Services
             return indexedBlocks;
         }
 
-        private Task<bool> IndexBlockAsync(
+        private async Task<bool> IndexBlockAsync(
             BigInteger blockNumber)
         {
-            throw new NotImplementedException();
+            try
+            {
+                await _transactionReceiptRepository.ClearBlockAsync(blockNumber);
+                
+                var transactionReceipts = (await _blockchainService.GetTransactionReceiptsAsync(blockNumber))
+                    .ToList();
+
+                foreach (var receipt in transactionReceipts)
+                {
+                    await _transactionReceiptRepository.InsertOrReplaceAsync(receipt);
+                }
+
+                var affectedAddresses = transactionReceipts
+                    .Select(x => new[] { x.From, x.To })
+                    .SelectMany(x => x)
+                    .Distinct();
+
+                foreach (var affectedAddress in affectedAddresses)
+                {
+                    await _balanceObservationTaskRepository.EnqueueAsync(new BalanceObservationTask
+                    {
+                        Address = affectedAddress
+                    });
+                }
+                
+                return true;
+            }
+            catch (Exception e)
+            {
+                _log.Error(e, $"Failed to index block [{blockNumber}].");
+                
+                return false;
+            }
         }
         
         public async Task MarkBlocksAsIndexed(

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Numerics;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
@@ -9,6 +10,7 @@ using Lykke.Service.EthereumWorker.Core.Services;
 using Nethereum.JsonRpc.Client;
 using Nethereum.RPC.Eth.DTOs;
 using Nethereum.Web3;
+using TransactionReceipt = Lykke.Service.EthereumCommon.Core.Domain.TransactionReceipt;
 
 
 namespace Lykke.Service.EthereumWorker.Services
@@ -46,6 +48,12 @@ namespace Lykke.Service.EthereumWorker.Services
 
         public Task<TransfactionResult> GetTransactionResultAsync(
             string hash)
+        {
+            throw new NotImplementedException();
+        }
+
+        public async Task<IEnumerable<TransactionReceipt>> GetTransactionReceiptsAsync(
+            BigInteger blockNumbber)
         {
             throw new NotImplementedException();
         }

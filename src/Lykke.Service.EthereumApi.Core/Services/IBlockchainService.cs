@@ -1,18 +1,23 @@
 ﻿using System.Numerics;
 using System.Threading.Tasks;
+using JetBrains.Annotations;
 
 namespace Lykke.Service.EthereumApi.Core.Services
 {
     public interface IBlockchainService
     {
         Task<BigInteger> GetBalanceAsync(
-            string address);
+            [NotNull] string address);
 
         Task<string> BroadcastTransactionAsync(
-            string signedTxData);
+            [NotNull] string signedTxData);
 
         Task<string> BuildTransactionAsync(
-            string to,
+            [NotNull] string from,
+            [NotNull] string to,
             BigInteger amount);
+
+        Task<bool> IsWalletAsync(
+            [NotNull] string address);
     }
 }

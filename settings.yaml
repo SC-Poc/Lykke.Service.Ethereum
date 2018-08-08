@@ -1,0 +1,6 @@
+SignApiService:
+  Db:
+    LogsConnString:
+      settings-key: LogsConnStringValue
+      types:
+        - AzureTableStorage

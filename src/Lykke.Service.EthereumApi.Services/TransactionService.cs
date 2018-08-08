@@ -60,7 +60,7 @@ namespace Lykke.Service.EthereumApi.Services
                     from: from,
                     to: to,
                     amount: amount,
-                    data: await _blockchainService.BuildTransactionAsync(to, amount)
+                    data: await _blockchainService.BuildTransactionAsync(from, to, amount)
                 );
 
                 await _transactionRepository.AddAsync(transaction);

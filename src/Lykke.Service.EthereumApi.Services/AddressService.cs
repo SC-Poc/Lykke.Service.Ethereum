@@ -8,13 +8,21 @@ namespace Lykke.Service.EthereumApi.Services
     [UsedImplicitly]
     public class AddressService : IAddressService
     {
+        private readonly IBlockchainService _blockchainService;
+
+        
+        public AddressService(
+            IBlockchainService blockchainService)
+        {
+            _blockchainService = blockchainService;
+        }
+
         
         public async Task<bool> ValidateAsync(
             string address)
         {
-            // TODO: Ensure that address does not elong to contract
-            
-            return Address.ValidateFormatAndChecksum(address);
+            return Address.ValidateFormatAndChecksum(address)
+                && await _blockchainService.IsWalletAsync(address);
         }
     }
 }
