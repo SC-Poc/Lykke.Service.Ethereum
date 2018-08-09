@@ -74,7 +74,7 @@ namespace Lykke.Service.EthereumApi.Modules
                 (
                     connectionString
                 ))
-                .As<ITransactionReceiptRepository>()
+                .As<ITransactionMonitoringTaskRepository>()
                 .SingleInstance();
             
             // TransactionReceiptRepository
