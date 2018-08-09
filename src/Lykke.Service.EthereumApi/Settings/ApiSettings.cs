@@ -6,5 +6,9 @@ namespace Lykke.Service.EthereumApi.Settings
     public class ApiSettings
     {
         public DbSettings Db { get; set; }
+        
+        public string MinimalTransactionAmount { get; set; }
+        
+        public string ParityNodeUrl { get; set; }
     }
 }

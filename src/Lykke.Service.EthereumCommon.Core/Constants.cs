@@ -2,17 +2,21 @@
 {
     public static class Constants
     {
-        public const int AssetAccuracy = 18;
-        
         #if ETC
+
+        public const int AssetAccuracy = 18;
 
         public const string AssetId = "ETC";
     
         public const string BlockchainId = "EthereumClassic";
     
         public const string BlockchainName = "Ethereum Classic";
+    
+        #endif
 
-        #else
+        #if ETH
+        
+        public const int AssetAccuracy = 18;
         
         public const string AssetId = "ETH";
         

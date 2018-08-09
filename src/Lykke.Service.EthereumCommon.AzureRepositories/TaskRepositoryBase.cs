@@ -2,7 +2,9 @@
 using System.Threading.Tasks;
 using AzureStorage.Queue;
 using Common;
+using Common.Log;
 using JetBrains.Annotations;
+using Lykke.Common.Log;
 using Lykke.Service.EthereumCommon.Core.Repositories;
 using MessagePack;
 using Microsoft.WindowsAzure.Storage.Queue;
@@ -13,7 +15,8 @@ namespace Lykke.Service.EthereumCommon.AzureRepositories
         where T : class, new()
     {
         private readonly IQueueExt _queue;
-
+        
+        
         protected internal TaskRepositoryBase(
             IQueueExt queue)
         {

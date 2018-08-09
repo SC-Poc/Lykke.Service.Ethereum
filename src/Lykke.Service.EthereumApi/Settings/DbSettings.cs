@@ -7,6 +7,9 @@ namespace Lykke.Service.EthereumApi.Settings
     public class DbSettings
     {
         [AzureTableCheck]
+        public string DataConnString { get; set; }
+        
+        [AzureTableCheck]
         public string LogsConnString { get; set; }
     }
 }

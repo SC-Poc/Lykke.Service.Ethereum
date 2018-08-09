@@ -21,12 +21,12 @@ namespace Lykke.Service.EthereumApi.Services
         
         public TransactionService(
             IBlockchainService blockchainService,
-            BigInteger minimalTransactionAmount,
             ITransactionMonitoringTaskRepository tranferTransactionMonitoringTaskRepository,
-            ITransactionRepository transactionRepository)
+            ITransactionRepository transactionRepository,
+            Settings settings)
         {
             _blockchainService = blockchainService;
-            _minimalTransactionAmount = minimalTransactionAmount;
+            _minimalTransactionAmount = settings.MinimalTransactionAmount;
             _tranferTransactionMonitoringTaskRepository = tranferTransactionMonitoringTaskRepository;
             _transactionRepository = transactionRepository;
         }
@@ -173,6 +173,12 @@ namespace Lykke.Service.EthereumApi.Services
             Guid transactionId)
         {
             return _transactionRepository.TryGetAsync(transactionId);
+        }
+
+
+        public class Settings
+        {
+            public BigInteger MinimalTransactionAmount { get; set; }
         }
     }
 }
