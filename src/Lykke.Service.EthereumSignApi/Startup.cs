@@ -18,7 +18,7 @@ namespace Lykke.Service.EthereumSignApi
                 options.Logs = logs =>
                 {
                     
-#if ENABLE_LOGGING
+#if ENABLE_SENSITIVE_LOGGING
 
                     logs.AzureTableName 
                         = $"{Constants.BlockchainId}SignApiLog";

@@ -4,6 +4,33 @@
     <AssemblyName>Lykke.Service.EthereumSignApi.Services</AssemblyName>
     <RootNamespace>Lykke.Service.EthereumSignApi.Services</RootNamespace>
     <Version>1.0.0</Version>
+    <Configurations>ETC-Test;ETC-Debug;ETC-Dev;ETH-Dev;ETH-Test;ETC-Prod;ETH-Prod;ETH-Debug</Configurations>
+    <Platforms>AnyCPU</Platforms>
+    <LangVersion>7.1</LangVersion>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)' == 'ETC-Debug' ">
+    <DefineConstants>ETC;DEBUG;ENABLE_SENSITIVE_LOGGING</DefineConstants>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)' == 'ETC-Dev' ">
+    <DefineConstants>ETC;ENABLE_SENSITIVE_LOGGING</DefineConstants>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)' == 'ETC-Test' ">
+    <DefineConstants>ETC</DefineConstants>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)' == 'ETC-Prod' ">
+    <DefineConstants>ETC</DefineConstants>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)' == 'ETH-Debug' ">
+    <DefineConstants>ETH;DEBUG;ENABLE_SENSITIVE_LOGGING</DefineConstants>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)' == 'ETH-Dev' ">
+    <DefineConstants>ETH;ENABLE_SENSITIVE_LOGGING</DefineConstants>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)' == 'ETH-Test' ">
+    <DefineConstants>ETH</DefineConstants>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)' == 'ETH-Prod' ">
+    <DefineConstants>ETH</DefineConstants>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="Lykke.Common" Version="7.0.3" />

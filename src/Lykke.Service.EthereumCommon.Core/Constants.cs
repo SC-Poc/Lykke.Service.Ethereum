@@ -4,7 +4,7 @@
     {
         public const int AssetAccuracy = 18;
         
-        #if CLASSIC
+        #if ETC
 
         public const string AssetId = "ETC";
     
@@ -32,7 +32,7 @@
 
         #else
 
-        public const string BuildConfigurationMessage = "Is Release";
+        public const string BuildConfigurationMessage = "Is RELEASE";
     
         public const bool IsDebug = false;
     

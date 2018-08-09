@@ -5,16 +5,33 @@
     <Version>1.0.1</Version>
     <AssemblyName>Lykke.Service.EthereumSignApi</AssemblyName>
     <RootNamespace>Lykke.Service.EthereumSignApi</RootNamespace>
+    <Configurations>ETC-Test;ETC-Debug;ETC-Dev;ETH-Dev;ETH-Test;ETC-Prod;ETH-Prod;ETH-Debug</Configurations>
+    <Platforms>AnyCPU</Platforms>
+    <LangVersion>7.1</LangVersion>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
-    <DocumentationFile>bin\Release\netcoreapp2.0\Lykke.Service.EthereumSignApi.xml</DocumentationFile>
-    <NoWarn>1701;1702;1705;1591</NoWarn>
-    <LangVersion>latest</LangVersion>
+  <PropertyGroup Condition=" '$(Configuration)' == 'ETC-Debug' ">
+    <DefineConstants>ETC;DEBUG;ENABLE_SENSITIVE_LOGGING</DefineConstants>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-    <DocumentationFile>bin\Debug\netcoreapp2.0\Lykke.Service.EthereumSignApi.xml</DocumentationFile>
-    <NoWarn>1701;1702;1705;1591</NoWarn>
-    <LangVersion>latest</LangVersion>
+  <PropertyGroup Condition=" '$(Configuration)' == 'ETC-Dev' ">
+    <DefineConstants>ETC;ENABLE_SENSITIVE_LOGGING</DefineConstants>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)' == 'ETC-Test' ">
+    <DefineConstants>ETC</DefineConstants>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)' == 'ETC-Prod' ">
+    <DefineConstants>ETC</DefineConstants>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)' == 'ETH-Debug' ">
+    <DefineConstants>ETH;DEBUG;ENABLE_SENSITIVE_LOGGING</DefineConstants>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)' == 'ETH-Dev' ">
+    <DefineConstants>ETH;ENABLE_SENSITIVE_LOGGING</DefineConstants>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)' == 'ETH-Test' ">
+    <DefineConstants>ETH</DefineConstants>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)' == 'ETH-Prod' ">
+    <DefineConstants>ETH</DefineConstants>
   </PropertyGroup>
   <ItemGroup>
     <None Update="Dockerfile">
@@ -22,7 +39,7 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Lykke.Sdk" Version="5.1.3" />
+    <PackageReference Include="Lykke.Sdk" Version="5.2.0" />
     <PackageReference Include="Lykke.Service.BlockchainApi.Contract" Version="13.1.1" />
     <PackageReference Include="Microsoft.AspNetCore" Version="2.1.2" />
     <PackageReference Include="Microsoft.AspNetCore.StaticFiles" Version="2.1.1" />
