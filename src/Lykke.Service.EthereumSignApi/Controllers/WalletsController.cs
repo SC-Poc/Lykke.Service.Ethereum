@@ -1,5 +1,6 @@
 ﻿using JetBrains.Annotations;
 using Lykke.Service.BlockchainApi.Contract.Wallets;
+using Lykke.Service.EthereumCommon.Core;
 using Lykke.Service.EthereumSignApi.Core.Services.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 
@@ -26,7 +27,7 @@ namespace Lykke.Service.EthereumSignApi.Controllers
             return new WalletResponse
             {
                 PrivateKey = wallet.PrivateKey,
-                PublicAddress = wallet.Address
+                PublicAddress = Address.AddChecksum(wallet.Address)
             };
         }
     }
