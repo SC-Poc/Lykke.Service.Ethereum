@@ -19,11 +19,10 @@ namespace Lykke.Service.EthereumWorker.Services
     public class BlockchainService : BlockchainServiceBase, IBlockchainService
     {
         public BlockchainService(
-            int confirmationLevel,
             ILogFactory logFactory,
+            Settings settings,
             Web3 web3)
-        
-            : base(confirmationLevel, logFactory, web3)
+            : base(settings.ConfirmationLevel, logFactory, web3)
         {
             
         }
@@ -52,10 +51,16 @@ namespace Lykke.Service.EthereumWorker.Services
             throw new NotImplementedException();
         }
 
-        public async Task<IEnumerable<TransactionReceipt>> GetTransactionReceiptsAsync(
+        public Task<IEnumerable<TransactionReceipt>> GetTransactionReceiptsAsync(
             BigInteger blockNumbber)
         {
             throw new NotImplementedException();
+        }
+
+
+        public class Settings
+        {
+            public int ConfirmationLevel { get; set; }
         }
     }
 }

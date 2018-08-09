@@ -15,9 +15,9 @@ namespace Lykke.Service.EthereumWorker.QueueConsumers
         
         public BalanceObservationQueueConsumer(
             IBalanceObservationService balanceObservationService,
-            int maxDegreeOfParallelism)
+            Settings settings)
             
-            : base(maxDegreeOfParallelism: maxDegreeOfParallelism)
+            : base(maxDegreeOfParallelism: settings.MaxDegreeOfParallelism)
         {
             _balanceObservationService = balanceObservationService;
         }
@@ -39,6 +39,11 @@ namespace Lykke.Service.EthereumWorker.QueueConsumers
 
             await _balanceObservationService.CompleteObservationTaskAsync(completionToken);
         }
-            
+
+
+        public class Settings
+        {
+            public int MaxDegreeOfParallelism { get; set; }
+        }
     }
 }

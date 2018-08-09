@@ -11,13 +11,35 @@ ApiService:
   MinimalTransactionAmount:
     settings-key: Ethereum-MinimalTransactionAmount
   ParityNodeUrl:
-    settings-key: Ethereum-ParityNodeUrl 
+    settings-key: Ethereum-ParityNodeUrl
 SignApiService:
   Db:
     LogsConnString:
       settings-key: LogsConnString
       types:
         - AzureTableStorage
+WorkerService:
+  BalanceObservationMaxDegreeOfParallelism:
+    settings-key: Ethereum-BalanceObservationMaxDegreeOfParallelism
+  BlockchainIndexingMaxDegreeOfParallelism:
+    settings-key: Ethereum-BlockchainIndexingMaxDegreeOfParallelism
+  BlockLockDuration:
+    settings-key: Ethereum-BlockLockDuration
+  ConfirmationLevel:
+    settings-key: Ethereum-ConfirmationLevel
+  Db:
+    DataConnString:
+      settings-key: Ethereum-DataConnString
+      types:
+        - AzureTableStorage
+    LogsConnString:
+      settings-key: LogsConnString
+      types:
+        - AzureTableStorage
+  ParityNodeUrl:
+    settings-key: Ethereum-ParityNodeUrl
+  TransactionMonitoringMaxDegreeOfParallelism:
+      settings-key: Ethereum-TransactionMonitoringMaxDegreeOfParallelism
 MonitoringServiceClient:
     MonitoringServiceUrl:
         settings-key: MonitoringServiceUrl

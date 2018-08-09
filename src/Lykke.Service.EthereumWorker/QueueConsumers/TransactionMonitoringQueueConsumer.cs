@@ -14,10 +14,10 @@ namespace Lykke.Service.EthereumWorker.QueueConsumers
         
         
         public TransactionMonitoringQueueConsumer(
-            int maxDegreeOfParallelism,
+            Settings settings,
             ITransactionMonitoringService transactionMonitoringService)
         
-            : base(maxDegreeOfParallelism: maxDegreeOfParallelism)
+            : base(maxDegreeOfParallelism: settings.MaxDegreeOfParallelism)
         {
             _transactionMonitoringService = transactionMonitoringService;
         }
@@ -40,6 +40,12 @@ namespace Lykke.Service.EthereumWorker.QueueConsumers
             {
                 await _transactionMonitoringService.CompleteMonitoringTaskAsync(completionToken);
             }
+        }
+        
+        
+        public class Settings
+        {
+            public int MaxDegreeOfParallelism { get; set; }
         }
     }
 }

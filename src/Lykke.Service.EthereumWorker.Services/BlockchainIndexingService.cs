@@ -24,7 +24,6 @@ namespace Lykke.Service.EthereumWorker.Services
         private readonly TimeSpan _blockLockDuration;
         private readonly IBlockIndexationLockRepository _blockLockRepository;
         private readonly ILog _log;
-        private readonly int _maxDegreeOfParallelism;
         private readonly IBlockchainIndexationStateRepository _stateRepository;
         private readonly ITransactionReceiptRepository _transactionReceiptRepository;
 
@@ -32,19 +31,17 @@ namespace Lykke.Service.EthereumWorker.Services
         public BlockchainIndexingService(
             IBalanceObservationTaskRepository balanceObservationTaskRepository,
             IBlockchainService blockchainServiceService,
-            TimeSpan blockLockDuration,
             IBlockIndexationLockRepository blockLockRepository,
             ILogFactory logFactory,
-            int maxDegreeOfParallelism,
+            Settings settings,
             IBlockchainIndexationStateRepository stateRepository,
             ITransactionReceiptRepository transactionReceiptRepository)
         {
             _balanceObservationTaskRepository = balanceObservationTaskRepository;
             _blockchainService = blockchainServiceService;
-            _blockLockDuration = blockLockDuration;
+            _blockLockDuration = settings.BlockLockDuration;
             _blockLockRepository = blockLockRepository;
             _log = logFactory.CreateLog(this);
-            _maxDegreeOfParallelism = maxDegreeOfParallelism;
             _stateRepository = stateRepository;
             _transactionReceiptRepository = transactionReceiptRepository;
         }
@@ -113,25 +110,21 @@ namespace Lykke.Service.EthereumWorker.Services
             IEnumerable<BigInteger> blockNumbers)
         {
             var indexedBlocks = new ConcurrentBag<BigInteger>();
-            var throttler = new SemaphoreSlim(_maxDegreeOfParallelism);
-
+            
             var indexationTasks = blockNumbers.Select
-            (
-                
-                    blockNumber => Task.Run(async () =>
+            (                
+                    
+                blockNumber => Task.Run(async () =>
+                {
+                    if (await IndexBlockAsync(blockNumber))
                     {
-                        if (await IndexBlockAsync(blockNumber))
-                        {
-                            indexedBlocks.Add(blockNumber);
-                        }
-                        else
-                        {
-                            await ReleaseBlockLockAsync(blockNumber);
-                        }
-                        
-                        throttler.Release();
-                        
-                    })
+                        indexedBlocks.Add(blockNumber);
+                    }
+                    else
+                    {
+                        await ReleaseBlockLockAsync(blockNumber);
+                    }
+                })
                 
             ).ToList();
 
@@ -214,6 +207,12 @@ namespace Lykke.Service.EthereumWorker.Services
             {
                 _log.Error(e, $"Failed to release indexation lock for block {blockNumber}.");
             }
+        }
+
+
+        public class Settings
+        {
+            public TimeSpan BlockLockDuration { get; set; }
         }
     }
 }

@@ -14,15 +14,17 @@ namespace Lykke.Service.EthereumWorker.QueueConsumers
         private readonly IBlockchainIndexingService _blockchainIndexingService;
         private readonly int _maxDegreeOfParallelism;
         
+        
         public BlockchainIndexationQueueConsumer(
             IBlockchainIndexingService blockchainIndexingService,
-            int maxDegreeOfParallelism)
+            Settings settings)
             : base(emptyQueueCheckInterval: 5000)
         {
             _blockchainIndexingService = blockchainIndexingService;
-            _maxDegreeOfParallelism = maxDegreeOfParallelism;
+            _maxDegreeOfParallelism = settings.MaxDegreeOfParallelism;
         }
 
+        
         protected override async Task<(bool, IEnumerable<BigInteger>)> TryGetNextTaskAsync()
         {
             var nonIndexedBlockBatch = (await _blockchainIndexingService.GetNonIndexedBlocksAsync(take: _maxDegreeOfParallelism))
@@ -31,11 +33,18 @@ namespace Lykke.Service.EthereumWorker.QueueConsumers
             return (nonIndexedBlockBatch.Any(), nonIndexedBlockBatch);
         }
 
-        protected override async Task ProcessTaskAsync(IEnumerable<BigInteger> nonIndexedBlockBatch)
+        protected override async Task ProcessTaskAsync(
+            IEnumerable<BigInteger> nonIndexedBlockBatch)
         {
             var indexeBlocks = await _blockchainIndexingService.IndexBlocksAsync(nonIndexedBlockBatch);
 
             await _blockchainIndexingService.MarkBlocksAsIndexed(indexeBlocks);
+        }
+        
+        
+        public class Settings
+        {
+            public int MaxDegreeOfParallelism { get; set; }
         }
     }
 }
