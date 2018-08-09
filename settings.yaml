@@ -2,8 +2,8 @@ ApiService:
   Db:
     DataConnString:
       settings-key: Ethereum-DataConnString
-            types:
-              - AzureTableStorage
+      types:
+        - AzureTableStorage
     LogsConnString:
       settings-key: LogsConnString
       types:
@@ -11,7 +11,7 @@ ApiService:
   MinimalTransactionAmount:
     settings-key: Ethereum-MinimalTransactionAmount
   ParityNodeUrl:
-      settings-key: Ethereum-ParityNodeUrl 
+    settings-key: Ethereum-ParityNodeUrl 
 SignApiService:
   Db:
     LogsConnString:
@@ -25,8 +25,8 @@ SlackNotifications:
     AzureQueue:
         ConnectionString:
             settings-key: SlackNotificationsConnString
-            types: 
-                - AzureTableStorage
+            types:
+              - AzureTableStorage
         QueueName: 
             settings-key: SlackNotificationsQueueName
     ThrottlingLimitSeconds: 
