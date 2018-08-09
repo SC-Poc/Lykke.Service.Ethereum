@@ -7,31 +7,40 @@
     <RootNamespace>Lykke.Service.EthereumApi</RootNamespace>
     <Configurations>ETC-Test;ETC-Debug;ETC-Dev;ETH-Dev;ETH-Test;ETC-Prod;ETH-Prod;ETH-Debug</Configurations>
     <Platforms>AnyCPU</Platforms>
-    <LangVersion>7.1</LangVersion>
+    <LangVersion>latest</LangVersion>
+    <NoWarn>1701;1702;1705;1591</NoWarn>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'ETC-Debug' ">
     <DefineConstants>ETC;DEBUG;ENABLE_SENSITIVE_LOGGING</DefineConstants>
+    <DocumentationFile>bin\ETC-Debug\netcoreapp2.1\Lykke.Service.EthereumApi.xml</DocumentationFile>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'ETC-Dev' ">
     <DefineConstants>ETC;ENABLE_SENSITIVE_LOGGING</DefineConstants>
+    <DocumentationFile>bin\ETC-Dev\netcoreapp2.1\Lykke.Service.EthereumApi.xml</DocumentationFile>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'ETC-Test' ">
     <DefineConstants>ETC</DefineConstants>
+    <DocumentationFile>bin\ETC-Test\netcoreapp2.1\Lykke.Service.EthereumApi.xml</DocumentationFile>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'ETC-Prod' ">
     <DefineConstants>ETC</DefineConstants>
+    <DocumentationFile>bin\ETC-Prod\netcoreapp2.1\Lykke.Service.EthereumApi.xml</DocumentationFile>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'ETH-Debug' ">
     <DefineConstants>ETH;DEBUG;ENABLE_SENSITIVE_LOGGING</DefineConstants>
+    <DocumentationFile>bin\ETH-Debug\netcoreapp2.1\Lykke.Service.EthereumApi.xml</DocumentationFile>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'ETH-Dev' ">
     <DefineConstants>ETH;ENABLE_SENSITIVE_LOGGING</DefineConstants>
+    <DocumentationFile>bin\ETH-Dev\netcoreapp2.1\Lykke.Service.EthereumApi.xml</DocumentationFile>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'ETH-Test' ">
     <DefineConstants>ETH</DefineConstants>
+    <DocumentationFile>bin\ETH-Test\netcoreapp2.1\Lykke.Service.EthereumApi.xml</DocumentationFile>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'ETH-Prod' ">
     <DefineConstants>ETH</DefineConstants>
+    <DocumentationFile>bin\ETH-Prod\netcoreapp2.1\Lykke.Service.EthereumApi.xml</DocumentationFile>
   </PropertyGroup>
   <ItemGroup>
     <None Update="Dockerfile">

@@ -6,7 +6,8 @@
     <Version>1.0.1</Version>
     <Configurations>ETC-Test;ETC-Debug;ETC-Dev;ETH-Dev;ETH-Test;ETC-Prod;ETH-Prod;ETH-Debug</Configurations>
     <Platforms>AnyCPU</Platforms>
-    <LangVersion>7.1</LangVersion>
+    <LangVersion>latest</LangVersion>
+    <NoWarn>1701;1702;1705;1591</NoWarn>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'ETC-Debug' ">
     <DefineConstants>ETC;DEBUG;ENABLE_SENSITIVE_LOGGING</DefineConstants>
