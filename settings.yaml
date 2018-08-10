@@ -47,8 +47,8 @@ SlackNotifications:
   AzureQueue:
     ConnectionString:
       settings-key: SlackNotificationsConnString
-        types:
-          - AzureTableStorage
+      types:
+        - AzureTableStorage
     QueueName:
       settings-key: SlackNotificationsQueueName
     ThrottlingLimitSeconds:
