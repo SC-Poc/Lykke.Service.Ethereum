@@ -10,7 +10,7 @@ namespace Lykke.Service.EthereumCommon
 {
     public static class EthereumCollectionContainerBuilderExtensions
     {
-        public static IServiceProvider BuildServiceProvider<T>(
+        public static IServiceProvider BuildEthereumServiceProvider<T>(
             this IServiceCollection services,
             string serviceName,
             bool enableLogging,

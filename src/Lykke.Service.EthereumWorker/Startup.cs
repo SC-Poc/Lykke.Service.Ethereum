@@ -21,7 +21,7 @@ namespace Lykke.Service.EthereumWorker
         public IServiceProvider ConfigureServices(
             IServiceCollection services)
         {
-            return services.BuildServiceProvider<AppSettings>
+            return services.BuildEthereumServiceProvider<AppSettings>
             (
                 serviceName: "Worker",
                 enableLogging: true,

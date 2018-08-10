@@ -20,7 +20,7 @@ namespace Lykke.Service.EthereumSignApi
         public IServiceProvider ConfigureServices(
             IServiceCollection services)
         {
-            return services.BuildServiceProvider<AppSettings>
+            return services.BuildEthereumServiceProvider<AppSettings>
             (
                 serviceName: "ApiLog",
                 

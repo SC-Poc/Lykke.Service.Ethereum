@@ -21,7 +21,7 @@ namespace Lykke.Service.EthereumApi
         public IServiceProvider ConfigureServices(
             IServiceCollection services)
         {
-            return services.BuildServiceProvider<AppSettings>
+            return services.BuildEthereumServiceProvider<AppSettings>
             (
                 serviceName: "Api",
                 enableLogging: true,

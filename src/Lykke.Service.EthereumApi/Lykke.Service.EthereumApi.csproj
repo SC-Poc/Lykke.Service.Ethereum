@@ -56,6 +56,7 @@
   <ItemGroup>
     <ProjectReference Include="..\Lykke.Service.EthereumApi.Core\Lykke.Service.EthereumApi.Core.csproj" />
     <ProjectReference Include="..\Lykke.Service.EthereumApi.Services\Lykke.Service.EthereumApi.Services.csproj" />
+    <ProjectReference Include="..\Lykke.Service.EthereumCommon\Lykke.Service.EthereumCommon.csproj" />
   </ItemGroup>
   <Target Name="PrepublishScript" BeforeTargets="PrepareForPublish">
     <ItemGroup>
