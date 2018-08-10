@@ -39,17 +39,17 @@ WorkerService:
   ParityNodeUrl:
     settings-key: Ethereum-ParityNodeUrl
   TransactionMonitoringMaxDegreeOfParallelism:
-      settings-key: Ethereum-TransactionMonitoringMaxDegreeOfParallelism
+    settings-key: Ethereum-TransactionMonitoringMaxDegreeOfParallelism
 MonitoringServiceClient:
-    MonitoringServiceUrl:
-        settings-key: MonitoringServiceUrl
-SlackNotifications: 
-    AzureQueue:
-        ConnectionString:
-            settings-key: SlackNotificationsConnString
-            types:
-              - AzureTableStorage
-        QueueName: 
-            settings-key: SlackNotificationsQueueName
-    ThrottlingLimitSeconds: 
-        settings-key: SlackNotificationsThrottlingLimit
+  MonitoringServiceUrl:
+    settings-key: MonitoringServiceUrl
+SlackNotifications:
+  AzureQueue:
+    ConnectionString:
+      settings-key: SlackNotificationsConnString
+        types:
+          - AzureTableStorage
+    QueueName:
+      settings-key: SlackNotificationsQueueName
+    ThrottlingLimitSeconds:
+      settings-key: SlackNotificationsThrottlingLimit
