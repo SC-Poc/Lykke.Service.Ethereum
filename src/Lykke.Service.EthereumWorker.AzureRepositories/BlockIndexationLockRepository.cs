@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Numerics;
 using System.Threading.Tasks;
 using AzureStorage;
@@ -10,6 +12,7 @@ using Lykke.Service.EthereumWorker.AzureRepositories.Entities;
 using Lykke.Service.EthereumWorker.Core.Domain;
 using Lykke.Service.EthereumWorker.Core.Repositories;
 using Lykke.SettingsReader;
+
 
 namespace Lykke.Service.EthereumWorker.AzureRepositories
 {
@@ -46,23 +49,44 @@ namespace Lykke.Service.EthereumWorker.AzureRepositories
         public async Task DeleteIfExistsAsync(
             BigInteger blockNumber)
         {
-            throw new System.NotImplementedException();
+            var (partitionKey, rowKey) = GetKeys(blockNumber);
+
+            await _locks.DeleteIfExistAsync
+            (
+                partitionKey: partitionKey,
+                rowKey: rowKey
+            );
         }
 
         public async Task<IEnumerable<BlockIndexationLock>> GetAsync()
         {
-            throw new System.NotImplementedException();
+            return (await _locks.GetDataAsync())
+                .Select(x => new BlockIndexationLock
+                {
+                    BlockNumber = x.BlockNumber,
+                    LockedOn = x.LockedOn
+                });
         }
 
         public async Task InsertOrReplaceAsync(
             BigInteger blockNumber)
         {
-            throw new System.NotImplementedException();
+            var (partitionKey, rowKey) = GetKeys(blockNumber);
+
+            await _locks.InsertOrReplaceAsync(new BlockIndexationLockEntity
+            {
+                BlockNumber = blockNumber,
+                LockedOn = DateTime.UtcNow,
+
+                PartitionKey = partitionKey,
+                RowKey = rowKey
+            });
         }
+        
         
         #region Key Builders
         
-        private static (string PartitionKey, string RowKey) GetReceiptKeys(
+        private static (string PartitionKey, string RowKey) GetKeys(
             BigInteger blockNumber)
         {
             var blockNumbberString = blockNumber.ToString();
