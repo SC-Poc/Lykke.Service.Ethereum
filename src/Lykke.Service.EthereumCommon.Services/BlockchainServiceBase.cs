@@ -4,6 +4,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Common.Log;
 using Lykke.Common.Log;
+using Nethereum.Parity;
 using Nethereum.Web3;
 
 namespace Lykke.Service.EthereumCommon.Services
@@ -17,13 +18,13 @@ namespace Lykke.Service.EthereumCommon.Services
         
         protected readonly int ConfirmationLevel;
         protected readonly ILog Log;
-        protected readonly Web3 Web3;
+        protected readonly Web3Parity Web3;
         
         
         protected BlockchainServiceBase(
             int confirmationLevel,
             ILogFactory logFactory,
-            Web3 web3)
+            Web3Parity web3)
         {
             _bestBlockSemaphore = new SemaphoreSlim(1);
             

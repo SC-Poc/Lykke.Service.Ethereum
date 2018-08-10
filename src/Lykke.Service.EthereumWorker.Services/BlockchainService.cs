@@ -8,6 +8,7 @@ using Lykke.Service.EthereumCommon.Services;
 using Lykke.Service.EthereumWorker.Core.Domain;
 using Lykke.Service.EthereumWorker.Core.Services;
 using Nethereum.JsonRpc.Client;
+using Nethereum.Parity;
 using Nethereum.RPC.Eth.DTOs;
 using Nethereum.Web3;
 using TransactionReceipt = Lykke.Service.EthereumCommon.Core.Domain.TransactionReceipt;
@@ -21,7 +22,7 @@ namespace Lykke.Service.EthereumWorker.Services
         public BlockchainService(
             ILogFactory logFactory,
             Settings settings,
-            Web3 web3)
+            Web3Parity web3)
             : base(settings.ConfirmationLevel, logFactory, web3)
         {
             

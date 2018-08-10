@@ -140,6 +140,16 @@ namespace Lykke.Service.EthereumWorker.Modules
                 .As<IObservableBalanceRepository>()
                 .SingleInstance();
             
+            // TransactionMonitoringTaskRepository
+            
+            builder
+                .Register(x => TransactionMonitoringTaskRepository.Create
+                (
+                    connectionString: connectionString
+                ))
+                .As<ITransactionMonitoringTaskRepository>()
+                .SingleInstance();
+            
             // TransactionReceiptRepository
             
             builder
@@ -149,6 +159,17 @@ namespace Lykke.Service.EthereumWorker.Modules
                     logFactory: x.Resolve<ILogFactory>()
                 ))
                 .As<ITransactionReceiptRepository>()
+                .SingleInstance();
+            
+            // TransactionRepository
+            
+            builder
+                .Register(x => TransactionRepository.Create
+                (
+                    connectionString: connectionString,
+                    logFactory: x.Resolve<ILogFactory>()
+                ))
+                .As<ITransactionRepository>()
                 .SingleInstance();
             
         }
