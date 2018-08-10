@@ -22,7 +22,7 @@ namespace Lykke.Service.EthereumSignApi
         {
             return services.BuildEthereumServiceProvider<AppSettings>
             (
-                serviceName: "ApiLog",
+                serviceName: "SignApi",
                 
                 #if ENABLE_SENSITIVE_LOGGING
                 
