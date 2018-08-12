@@ -36,7 +36,8 @@ namespace Lykke.Service.EthereumApi.Services
             Guid transactionId,
             string from,
             string to,
-            BigInteger amount)
+            BigInteger amount,
+            bool includeFee)
         {
             if (amount < _minimalTransactionAmount)
             {
@@ -48,8 +49,15 @@ namespace Lykke.Service.EthereumApi.Services
             if (transaction == null)
             {
                 var balance = await _blockchainService.GetBalanceAsync(from);
-
-                if (balance < amount)
+                var gasPrice = await _blockchainService.EstimateGasPriceAsync(to, amount);
+                var transactionFee = gasPrice * Constants.GasAmount;
+                
+                if (includeFee)
+                {
+                    amount -= transactionFee;
+                }
+                
+                if (balance < amount + transactionFee)
                 {
                     return BuildTransactionResult.BalanceIsNotEnough;
                 }
@@ -60,7 +68,10 @@ namespace Lykke.Service.EthereumApi.Services
                     from: from,
                     to: to,
                     amount: amount,
-                    data: await _blockchainService.BuildTransactionAsync(from, to, amount)
+                    gasAmount: Constants.GasAmount,
+                    gasPrice: gasPrice,
+                    includeFee: includeFee,
+                    data: await _blockchainService.BuildTransactionAsync(from, to, amount, gasPrice)
                 );
 
                 await _transactionRepository.AddAsync(transaction);

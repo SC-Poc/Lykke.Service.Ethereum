@@ -6,6 +6,7 @@ using Common.Log;
 using JetBrains.Annotations;
 using Lykke.Common.Log;
 using Lykke.Service.EthereumApi.Core.Services;
+using Lykke.Service.EthereumCommon.Core;
 using Lykke.Service.EthereumCommon.Core.Domain;
 using Lykke.SettingsReader;
 using MessagePack;
@@ -84,20 +85,25 @@ namespace Lykke.Service.EthereumApi.Services
         public async Task<string> BuildTransactionAsync(
             string from,
             string to,
-            BigInteger amount)
+            BigInteger amount,
+            BigInteger gasPrice)
         {
             var transaction = new UnsignedTransaction
             {
                 Amount = amount,
-                GasAmount = 21000,
-                GasPrice = await EstimateGasPriceAsync(to, amount),
+                GasAmount = Constants.GasAmount,
+                GasPrice = gasPrice,
                 Nonce = await GetNextNonceAsync(from),
                 To = to
             };
 
-            return MessagePackSerializer
+            var transactionContext = MessagePackSerializer
                 .Serialize(transaction)
                 .ToHex(prefix: true);
+            
+            _log.Info($"Transaction for transfer of {amount} {Constants.AssetId} from {from} to {to} has been built.");
+
+            return transactionContext;
         }
 
         public async Task<bool> IsWalletAsync(
@@ -116,39 +122,18 @@ namespace Lykke.Service.EthereumApi.Services
             return transaction != null && transaction.BlockNumber.Value == 0;
         }
         
-        private async Task<BigInteger> EstimateGasPriceAsync(
+        public async Task<BigInteger> EstimateGasPriceAsync(
             string to,
             BigInteger amount)
         {   
+            await UpdateMinAndMaxGasPricesAsync();
+
             var input = new TransactionInput
             {
                 To = to,
                 Value = new HexBigInteger(amount)
             };
-
-            if (_gasPriceExpiration <= DateTime.UtcNow)
-            {
-                await _gasPriceLock.WaitAsync();
-
-                try
-                {
-                    if (_gasPriceExpiration <= DateTime.UtcNow)
-                    {
-                        await Task.WhenAll
-                        (
-                            _maxGasPriceManager.Reload(),
-                            _minGasPriceManager.Reload()
-                        );
-
-                        _gasPriceExpiration = DateTime.UtcNow.AddMinutes(1);
-                    }
-                }
-                finally
-                {
-                    _gasPriceLock.Release();
-                }
-            }
-
+            
             var estimatedGasPrice = (await _web3.Eth.Transactions.EstimateGas.SendRequestAsync(input)).Value;
             var minGasPrice = _minGasPriceManager.CurrentValue;
             var maxGasPrice = _maxGasPriceManager.CurrentValue;
@@ -174,6 +159,52 @@ namespace Lykke.Service.EthereumApi.Services
             var result = new HexBigInteger(response);
 
             return result.Value;
+        }
+
+        private async Task UpdateMinAndMaxGasPricesAsync()
+        {
+            if (_gasPriceExpiration <= DateTime.UtcNow)
+            {
+                await _gasPriceLock.WaitAsync();
+
+                try
+                {
+                    var previousMaxGasPrice = _maxGasPriceManager.CurrentValue;
+                    var previousMinGasPrice = _minGasPriceManager.CurrentValue;
+                    
+                    if (_gasPriceExpiration <= DateTime.UtcNow)
+                    {
+                        await Task.WhenAll
+                        (
+                            _maxGasPriceManager.Reload(),
+                            _minGasPriceManager.Reload()
+                        );
+
+                        _gasPriceExpiration = DateTime.UtcNow.AddMinutes(1);
+                    }
+                    
+                    var newMaxGasPrice = _maxGasPriceManager.CurrentValue;
+                    var newMinGasPrice = _minGasPriceManager.CurrentValue;
+
+                    if (newMaxGasPrice != previousMaxGasPrice)
+                    {
+                        _log.Info($"Maximal gas price seto to {newMaxGasPrice}");
+                    }
+                    
+                    if (newMinGasPrice != previousMinGasPrice)
+                    {
+                        _log.Info($"Maximal gas price seto to {newMinGasPrice}");
+                    }
+                }
+                catch (Exception e)
+                {
+                    _log.Error(e, "Failed to update minimal and maximal gas prices.");
+                }
+                finally
+                {
+                    _gasPriceLock.Release();
+                }
+            }
         }
 
         private static string GetTransactionHash(

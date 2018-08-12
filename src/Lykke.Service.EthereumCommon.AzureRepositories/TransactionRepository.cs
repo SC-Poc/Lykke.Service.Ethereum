@@ -53,11 +53,14 @@ namespace Lykke.Service.EthereumCommon.AzureRepositories
                 DeletedOn = transaction.DeletedOn,
                 Error = transaction.Error,
                 From = transaction.From,
-                TransactionId = transaction.TransactionId,
+                GasAmount = transaction.GasAmount,
+                GasPrice = transaction.GasPrice,
+                Hash = transaction.Hash,
+                IncludeFee = transaction.IncludeFee,
                 SignedData = transaction.SignedData,
                 State = transaction.State,
                 To = transaction.To,
-                Hash = transaction.Hash
+                TransactionId = transaction.TransactionId
             };
 
             await _transactions.InsertAsync(transactionEntity);
@@ -87,11 +90,14 @@ namespace Lykke.Service.EthereumCommon.AzureRepositories
                     deletedOn: transactionEntity.DeletedOn,
                     error: transactionEntity.Error,
                     from: transactionEntity.From,
+                    gasAmount: transactionEntity.GasAmount,
+                    gasPrice: transactionEntity.GasPrice,
                     hash: transactionEntity.Hash,
-                    transactionId: transactionEntity.TransactionId,
+                    includeFee: transactionEntity.IncludeFee,
                     signedData: transactionEntity.SignedData,
                     state: transactionEntity.State,
-                    to: transactionEntity.To
+                    to: transactionEntity.To,
+                    transactionId: transactionEntity.TransactionId
                 );
             }
             else
@@ -114,7 +120,10 @@ namespace Lykke.Service.EthereumCommon.AzureRepositories
                 entity.DeletedOn = transaction.DeletedOn;
                 entity.Error = transaction.Error;
                 entity.From = transaction.From;
+                entity.GasAmount = transaction.GasAmount;
+                entity.GasPrice = transaction.GasPrice;
                 entity.Hash = transaction.Hash;
+                entity.IncludeFee = transaction.IncludeFee;
                 entity.SignedData = transaction.SignedData;
                 entity.State = transaction.State;
                 entity.To = transaction.To;

@@ -33,7 +33,8 @@ namespace Lykke.Service.EthereumApi.Controllers
                 transactionId: request.OperationId,
                 from: request.FromAddress,
                 to: request.ToAddress,
-                amount: BigInteger.Parse(request.Amount)
+                amount: BigInteger.Parse(request.Amount),
+                includeFee: request.IncludeFee
             );
 
             if (buildResult is BuildTransactionResult.TransactionContext txContext)

@@ -25,8 +25,14 @@ namespace Lykke.Service.EthereumCommon.AzureRepositories.Entities
         
         public string From { get; set; }
 
+        public BigInteger GasAmount { get; set; }
+        
+        public BigInteger GasPrice { get; set; }
+        
         public string Hash { get; set; }
 
+        public bool IncludeFee { get; set; }
+        
         public string SignedData { get; set; }
 
         public TransactionState State { get; set; }

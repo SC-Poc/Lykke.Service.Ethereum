@@ -27,6 +27,9 @@
         #endif
         
         
+        public const int GasAmount = 21000;
+        
+        
         
         #if DEBUG
         

@@ -10,6 +10,9 @@ namespace Lykke.Service.EthereumCommon.Core.Domain
             DateTime builtOn,
             string data,
             string from,
+            BigInteger gasAmount,
+            BigInteger gasPrice,
+            bool includeFee,
             TransactionState state,
             string to,
             Guid transactionId)
@@ -18,6 +21,9 @@ namespace Lykke.Service.EthereumCommon.Core.Domain
             BuiltOn = builtOn;
             Data = data;
             From = from;
+            GasAmount = gasAmount;
+            GasPrice = gasPrice;
+            IncludeFee = includeFee;
             State = state;
             To = to;
             TransactionId = transactionId;
@@ -33,7 +39,10 @@ namespace Lykke.Service.EthereumCommon.Core.Domain
             DateTime? deletedOn,
             string error,
             string from,
+            BigInteger gasAmount,
+            BigInteger gasPrice,
             string hash,
+            bool includeFee,
             string signedData,
             TransactionState state,
             string to,
@@ -48,7 +57,10 @@ namespace Lykke.Service.EthereumCommon.Core.Domain
             DeletedOn = deletedOn;
             Error = error;
             From = from;
+            GasAmount = gasAmount;
+            GasPrice = gasPrice;
             Hash = hash;
+            IncludeFee = includeFee;
             SignedData = signedData;
             State = state;
             To = to;
@@ -60,6 +72,9 @@ namespace Lykke.Service.EthereumCommon.Core.Domain
             string from,
             string to,
             BigInteger amount,
+            BigInteger gasAmount,
+            BigInteger gasPrice,
+            bool includeFee,
             string data)
         {
             return new Transaction
@@ -68,9 +83,12 @@ namespace Lykke.Service.EthereumCommon.Core.Domain
                 builtOn: DateTime.UtcNow,
                 data: data,
                 from: from,
-                transactionId: transactionId,
+                gasAmount: gasAmount,
+                gasPrice: gasPrice,
+                includeFee: includeFee,
                 state: TransactionState.Built,
-                to: to
+                to: to,
+                transactionId: transactionId
             );
         }
         
@@ -94,8 +112,14 @@ namespace Lykke.Service.EthereumCommon.Core.Domain
         
         public string From { get; }
 
+        public BigInteger GasAmount { get; }
+        
+        public BigInteger GasPrice { get; }
+        
         public string Hash { get; private set; }
 
+        public bool IncludeFee { get; }
+        
         public string SignedData { get; private set; }
 
         public TransactionState State { get; private set; }

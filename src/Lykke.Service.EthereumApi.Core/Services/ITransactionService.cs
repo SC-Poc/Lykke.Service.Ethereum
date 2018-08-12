@@ -5,6 +5,7 @@ using JetBrains.Annotations;
 using Lykke.Service.EthereumApi.Core.Domain;
 using Lykke.Service.EthereumCommon.Core.Domain;
 
+
 namespace Lykke.Service.EthereumApi.Core.Services
 {
     public interface ITransactionService
@@ -14,7 +15,8 @@ namespace Lykke.Service.EthereumApi.Core.Services
             Guid transactionId,
             [NotNull] string from,
             [NotNull] string to,
-            BigInteger amount);
+            BigInteger amount,
+            bool includeFee);
 
         [ItemNotNull]
         Task<BroadcastTransactionResult> BroadcastTransactionAsync(
