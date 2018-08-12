@@ -19,6 +19,6 @@ namespace Lykke.Service.EthereumWorker.Core.Services
             string hash);
         
         Task<IEnumerable<TransactionReceipt>> GetTransactionReceiptsAsync(
-            BigInteger blockNumbber);
+            BigInteger blockNumber);
     }
 }

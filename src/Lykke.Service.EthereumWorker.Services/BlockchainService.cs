@@ -9,6 +9,7 @@ using Lykke.Common.Log;
 using Lykke.Service.EthereumWorker.Core.Domain;
 using Lykke.Service.EthereumWorker.Core.Services;
 using Lykke.Service.EthereumWorker.Services.Models;
+using Nethereum.Hex.HexTypes;
 using Nethereum.JsonRpc.Client;
 using Nethereum.Parity;
 using Nethereum.RPC.Eth.DTOs;
@@ -107,10 +108,25 @@ namespace Lykke.Service.EthereumWorker.Services
             }
         }
 
-        public Task<IEnumerable<TransactionReceipt>> GetTransactionReceiptsAsync(
-            BigInteger blockNumbber)
+        public async Task<IEnumerable<TransactionReceipt>> GetTransactionReceiptsAsync(
+            BigInteger blockNumber)
         {
-            throw new NotImplementedException();
+            var block = await _web3.Eth.Blocks.GetBlockWithTransactionsByNumber.SendRequestAsync(new HexBigInteger(blockNumber));
+
+            if (block != null)
+            {
+                return block.Transactions.Where(x => x.Value.Value != 0).Select(x => new TransactionReceipt
+                {
+                    Amount = x.Value.Value,
+                    BlockNumber = blockNumber,
+                    From = x.From,
+                    Hash = x.TransactionHash,
+                    Timestamp = block.Timestamp,
+                    To = x.To
+                });
+            }
+
+            return Enumerable.Empty<TransactionReceipt>();
         }
         
         private async Task<TransactionTraceResponse[]> GetTransactionTracesAsync(string txHash)
