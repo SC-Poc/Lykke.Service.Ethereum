@@ -1,11 +1,13 @@
 ﻿using System;
 using System.Numerics;
+using System.Threading;
 using System.Threading.Tasks;
 using Common.Log;
 using JetBrains.Annotations;
 using Lykke.Common.Log;
 using Lykke.Service.EthereumApi.Core.Services;
 using Lykke.Service.EthereumCommon.Core.Domain;
+using Lykke.SettingsReader;
 using MessagePack;
 using Nethereum.Hex.HexConvertors.Extensions;
 using Nethereum.Hex.HexTypes;
@@ -19,14 +21,24 @@ namespace Lykke.Service.EthereumApi.Services
     [UsedImplicitly]
     public class BlockchainService : IBlockchainService
     {
+        private readonly SemaphoreSlim _gasPriceLock;
         private readonly ILog _log;
+        private readonly IReloadingManager<int> _maxGasPriceManager;
+        private readonly IReloadingManager<int> _minGasPriceManager;
         private readonly Web3Parity _web3;
 
+        private DateTime _gasPriceExpiration;
+        
+        
         public BlockchainService(
             ILogFactory logFactory,
+            Settings settings,
             Web3Parity web3)
         {
+            _gasPriceLock = new SemaphoreSlim(1);
             _log = logFactory.CreateLog(this);
+            _maxGasPriceManager = settings.MaxGasPriceManager;
+            _minGasPriceManager = settings.MinGasPriceManager;
             _web3 = web3;
         }
 
@@ -62,7 +74,7 @@ namespace Lykke.Service.EthereumApi.Services
                 
                 throw new Exception
                 (
-                    $"Transaction [{txHash}] has been broadcasted, but did not appear in mempol during the specified period of time."
+                    $"Transaction [{txHash}] has been broadcasted, but did not appear in mempool during the specified period of time."
                 );
             }
             
@@ -114,8 +126,44 @@ namespace Lykke.Service.EthereumApi.Services
                 Value = new HexBigInteger(amount)
             };
 
-            return (await _web3.Eth.Transactions.EstimateGas.SendRequestAsync(input))
-                .Value;
+            if (_gasPriceExpiration <= DateTime.UtcNow)
+            {
+                await _gasPriceLock.WaitAsync();
+
+                try
+                {
+                    if (_gasPriceExpiration <= DateTime.UtcNow)
+                    {
+                        await Task.WhenAll
+                        (
+                            _maxGasPriceManager.Reload(),
+                            _minGasPriceManager.Reload()
+                        );
+
+                        _gasPriceExpiration = DateTime.UtcNow.AddMinutes(1);
+                    }
+                }
+                finally
+                {
+                    _gasPriceLock.Release();
+                }
+            }
+
+            var estimatedGasPrice = (await _web3.Eth.Transactions.EstimateGas.SendRequestAsync(input)).Value;
+            var minGasPrice = _minGasPriceManager.CurrentValue;
+            var maxGasPrice = _maxGasPriceManager.CurrentValue;
+
+            if (estimatedGasPrice > maxGasPrice)
+            {
+                return maxGasPrice;
+            }
+
+            if (estimatedGasPrice < minGasPrice)
+            {
+                return minGasPrice;
+            }
+
+            return estimatedGasPrice;
         }
         
         private async Task<BigInteger> GetNextNonceAsync(
@@ -135,6 +183,13 @@ namespace Lykke.Service.EthereumApi.Services
             
             return (new Nethereum.Signer.Transaction(txDataBytes)).RawHash
                 .ToHex(true);
+        }
+
+
+        public class Settings
+        {
+            public IReloadingManager<int> MaxGasPriceManager { get; set; }
+            public IReloadingManager<int> MinGasPriceManager { get; set; }
         }
     }
 }

@@ -113,6 +113,15 @@ namespace Lykke.Service.EthereumApi.Modules
                 .As<IBlockchainService>()
                 .SingleInstance();
 
+            builder
+                .RegisterInstance(new BlockchainService.Settings
+                {
+                    MaxGasPriceManager = _appSettings.Nested(x => x.ApiService.MaximalGasPrice),
+                    MinGasPriceManager = _appSettings.Nested(x => x.ApiService.MinimalGasPrice)
+                })
+                .AsSelf();
+            
+                
             // TransactionHistoryService
             
             builder
