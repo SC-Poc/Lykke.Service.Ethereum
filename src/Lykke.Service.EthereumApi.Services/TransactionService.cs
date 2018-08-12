@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Numerics;
 using System.Threading.Tasks;
+using Common.Log;
 using JetBrains.Annotations;
+using Lykke.Common.Log;
 using Lykke.Service.EthereumApi.Core.Domain;
 using Lykke.Service.EthereumApi.Core.Services;
 using Lykke.Service.EthereumCommon.Core;
@@ -14,6 +16,7 @@ namespace Lykke.Service.EthereumApi.Services
     public class TransactionService : ITransactionService
     {
         private readonly IBlockchainService _blockchainService;
+        private readonly ILog _log;
         private readonly BigInteger _minimalTransactionAmount;
         private readonly ITransactionMonitoringTaskRepository _tranferTransactionMonitoringTaskRepository;
         private readonly ITransactionRepository _transactionRepository;
@@ -21,11 +24,13 @@ namespace Lykke.Service.EthereumApi.Services
         
         public TransactionService(
             IBlockchainService blockchainService,
+            ILogFactory logFactory,
             ITransactionMonitoringTaskRepository tranferTransactionMonitoringTaskRepository,
             ITransactionRepository transactionRepository,
             Settings settings)
         {
             _blockchainService = blockchainService;
+            _log = logFactory.CreateLog(this);
             _minimalTransactionAmount = settings.MinimalTransactionAmount;
             _tranferTransactionMonitoringTaskRepository = tranferTransactionMonitoringTaskRepository;
             _transactionRepository = transactionRepository;
@@ -41,6 +46,8 @@ namespace Lykke.Service.EthereumApi.Services
         {
             if (amount < _minimalTransactionAmount)
             {
+                _log.Info($"Failed to build transaction [{transactionId}]: amount is too small.");
+                
                 return BuildTransactionResult.AmountIsTooSmall;
             }
             
@@ -59,6 +66,8 @@ namespace Lykke.Service.EthereumApi.Services
                 
                 if (balance < amount + transactionFee)
                 {
+                    _log.Info($"Failed to build transaction [{transactionId}]: balance is not enough.");
+                    
                     return BuildTransactionResult.BalanceIsNotEnough;
                 }
 
@@ -76,6 +85,8 @@ namespace Lykke.Service.EthereumApi.Services
 
                 await _transactionRepository.AddAsync(transaction);
 
+                _log.Info($"Transaction [{transactionId}] has been built.");
+                
                 return BuildTransactionResult.Success(transaction.Data);
             }
             else

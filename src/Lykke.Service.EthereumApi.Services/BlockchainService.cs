@@ -97,13 +97,9 @@ namespace Lykke.Service.EthereumApi.Services
                 To = to
             };
 
-            var transactionContext = MessagePackSerializer
+            return MessagePackSerializer
                 .Serialize(transaction)
                 .ToHex(prefix: true);
-            
-            _log.Info($"Transaction for transfer of {amount} {Constants.AssetId} from {from} to {to} has been built.");
-
-            return transactionContext;
         }
 
         public async Task<bool> IsWalletAsync(
