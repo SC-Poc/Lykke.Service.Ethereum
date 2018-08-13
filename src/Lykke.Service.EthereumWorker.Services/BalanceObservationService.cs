@@ -1,6 +1,9 @@
 ﻿using System;
 using System.Threading.Tasks;
+using Common.Log;
 using JetBrains.Annotations;
+using Lykke.Common.Log;
+using Lykke.Service.EthereumCommon.Core;
 using Lykke.Service.EthereumCommon.Core.Repositories;
 using Lykke.Service.EthereumWorker.Core.Domain;
 using Lykke.Service.EthereumWorker.Core.Repositories;
@@ -14,16 +17,19 @@ namespace Lykke.Service.EthereumWorker.Services
     {
         private readonly IBalanceObservationTaskRepository _balanceObservationTaskRepository;
         private readonly IBlockchainService _blockchainService;
+        private readonly ILog _log;
         private readonly IObservableBalanceRepository _observableBalanceRepository;
 
 
         public BalanceObservationService(
             IBalanceObservationTaskRepository balanceObservationTaskRepository,
             IBlockchainService blockchainService,
+            ILogFactory logFactory,
             IObservableBalanceRepository observableBalanceRepository)
         {
             _balanceObservationTaskRepository = balanceObservationTaskRepository;
             _blockchainService = blockchainService;
+            _log = logFactory.CreateLog(this);
             _observableBalanceRepository = observableBalanceRepository;
         }
 
@@ -31,17 +37,26 @@ namespace Lykke.Service.EthereumWorker.Services
         public async Task CheckAndUpdateBalanceAsync(
             string address)
         {
-            var bestTrustedBlockNumber = await _blockchainService.GetBestTrustedBlockNumberAsync();
-            var currentBalance = await _observableBalanceRepository.TryGetAsync(address);
-
-            if (currentBalance != null && currentBalance.BlockNumber < bestTrustedBlockNumber)
+            try
             {
-                var balance = await _blockchainService.GetBalanceAsync(address, bestTrustedBlockNumber);
-                
-                currentBalance.Amount = balance;
-                currentBalance.BlockNumber = bestTrustedBlockNumber;
+                var bestTrustedBlockNumber = await _blockchainService.GetBestTrustedBlockNumberAsync();
+                var currentBalance = await _observableBalanceRepository.TryGetAsync(address);
 
-                await _observableBalanceRepository.UpdateSafelyAsync(currentBalance);
+                if (currentBalance != null && currentBalance.BlockNumber < bestTrustedBlockNumber)
+                {
+                    var balance = await _blockchainService.GetBalanceAsync(address, bestTrustedBlockNumber);
+                
+                    currentBalance.Amount = balance;
+                    currentBalance.BlockNumber = bestTrustedBlockNumber;
+
+                    await _observableBalanceRepository.UpdateSafelyAsync(currentBalance);
+                    
+                    _log.Info($"Account [{address}] balance updated to [{balance} {Constants.AssetId}] at block [{bestTrustedBlockNumber}].");
+                }
+            }
+            catch (Exception e)
+            {
+                _log.Error(e, $"Failed to check balance of account [{address}].");
             }
         }
 

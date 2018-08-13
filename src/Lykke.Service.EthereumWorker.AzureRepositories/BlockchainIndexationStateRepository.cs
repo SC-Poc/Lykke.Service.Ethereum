@@ -17,7 +17,7 @@ namespace Lykke.Service.EthereumWorker.AzureRepositories
 {
     public class BlockchainIndexationStateRepository : RepositoryBase, IBlockchainIndexationStateRepository
     {
-        private const string Container = "BlockchainIndexationState";
+        private const string Container = "blockchain-indexation-state";
         private const string DataKey = ".bin";
         private const string LockKey = ".lock";
 

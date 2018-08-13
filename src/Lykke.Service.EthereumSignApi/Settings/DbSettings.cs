@@ -6,6 +6,7 @@ namespace Lykke.Service.EthereumSignApi.Settings
     [UsedImplicitly(ImplicitUseTargetFlags.WithMembers)]
     public class DbSettings
     {
+        
         [AzureTableCheck]
         public string LogsConnString { get; set; }
     }

@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using Common.Log;
 using JetBrains.Annotations;
 using Lykke.Common.Log;
+using Lykke.Service.EthereumCommon.Core.Domain;
 using Lykke.Service.EthereumCommon.Core.Repositories;
 using Lykke.Service.EthereumWorker.Core.Domain;
 using Lykke.Service.EthereumWorker.Core.Repositories;
@@ -151,6 +152,7 @@ namespace Lykke.Service.EthereumWorker.Services
                 var affectedAddresses = transactionReceipts
                     .Select(x => new[] { x.From, x.To })
                     .SelectMany(x => x)
+                    .Where(x => !string.IsNullOrEmpty(x))
                     .Distinct();
 
                 foreach (var affectedAddress in affectedAddresses)

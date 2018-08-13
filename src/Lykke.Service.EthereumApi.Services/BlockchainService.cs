@@ -24,8 +24,8 @@ namespace Lykke.Service.EthereumApi.Services
     {
         private readonly SemaphoreSlim _gasPriceLock;
         private readonly ILog _log;
-        private readonly IReloadingManager<int> _maxGasPriceManager;
-        private readonly IReloadingManager<int> _minGasPriceManager;
+        private readonly IReloadingManager<string> _maxGasPriceManager;
+        private readonly IReloadingManager<string> _minGasPriceManager;
         private readonly Web3Parity _web3;
 
         private DateTime _gasPriceExpiration;
@@ -131,8 +131,8 @@ namespace Lykke.Service.EthereumApi.Services
             };
             
             var estimatedGasPrice = (await _web3.Eth.Transactions.EstimateGas.SendRequestAsync(input)).Value;
-            var minGasPrice = _minGasPriceManager.CurrentValue;
-            var maxGasPrice = _maxGasPriceManager.CurrentValue;
+            var minGasPrice = BigInteger.Parse(_minGasPriceManager.CurrentValue);
+            var maxGasPrice = BigInteger.Parse(_maxGasPriceManager.CurrentValue);
 
             if (estimatedGasPrice > maxGasPrice)
             {
@@ -215,8 +215,8 @@ namespace Lykke.Service.EthereumApi.Services
 
         public class Settings
         {
-            public IReloadingManager<int> MaxGasPriceManager { get; set; }
-            public IReloadingManager<int> MinGasPriceManager { get; set; }
+            public IReloadingManager<string> MaxGasPriceManager { get; set; }
+            public IReloadingManager<string> MinGasPriceManager { get; set; }
         }
     }
 }

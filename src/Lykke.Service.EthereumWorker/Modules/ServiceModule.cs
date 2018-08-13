@@ -1,4 +1,5 @@
 ﻿using Autofac;
+using Common;
 using JetBrains.Annotations;
 using Lykke.Common.Log;
 using Lykke.Service.EthereumCommon.AzureRepositories;
@@ -50,9 +51,9 @@ namespace Lykke.Service.EthereumWorker.Modules
 
             builder
                 .RegisterType<BalanceObservationQueueConsumer>()
-                .AsSelf()
-                .SingleInstance()
-                .AutoActivate();
+                .As<IStartable>()
+                .As<IStopable>()
+                .SingleInstance();
             
             builder
                 .RegisterInstance(new BalanceObservationQueueConsumer.Settings
@@ -65,9 +66,9 @@ namespace Lykke.Service.EthereumWorker.Modules
 
             builder
                 .RegisterType<BlockchainIndexationQueueConsumer>()
-                .AsSelf()
-                .SingleInstance()
-                .AutoActivate();
+                .As<IStartable>()
+                .As<IStopable>()
+                .SingleInstance();
             
             builder
                 .RegisterInstance(new BlockchainIndexationQueueConsumer.Settings
@@ -77,12 +78,12 @@ namespace Lykke.Service.EthereumWorker.Modules
                 .AsSelf();
             
             // TransactionMonitoringQueueConsumer
-            
+
             builder
                 .RegisterType<TransactionMonitoringQueueConsumer>()
-                .AsSelf()
-                .SingleInstance()
-                .AutoActivate();
+                .As<IStartable>()
+                .As<IStopable>()
+                .SingleInstance();
             
             builder
                 .RegisterInstance(new TransactionMonitoringQueueConsumer.Settings

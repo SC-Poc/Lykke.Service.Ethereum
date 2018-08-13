@@ -355,14 +355,14 @@ namespace Lykke.Service.EthereumCommon.AzureRepositories
             return 
             (
                 GetAddressIndexPartitionKey(indexAddress),
-                $"{FormatBlockNumberForKey(blockNumber)}-{nonIndexAddress}-{hash}"
+                $"{FormatBlockNumberForKey(blockNumber)}-{nonIndexAddress ?? "null"}-{hash}"
             );
         }
 
         private static string GetAddressIndexPartitionKey(
             string address)
         {
-            return address;
+            return address ?? "null";
         }
 
         

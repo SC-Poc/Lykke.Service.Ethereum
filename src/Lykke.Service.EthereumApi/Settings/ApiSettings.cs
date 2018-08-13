@@ -7,9 +7,9 @@ namespace Lykke.Service.EthereumApi.Settings
     {
         public DbSettings Db { get; set; }
         
-        public int MaximalGasPrice { get; set; }
+        public string MaximalGasPrice { get; set; }
         
-        public int MinimalGasPrice { get; set; }
+        public string MinimalGasPrice { get; set; }
         
         public string MinimalTransactionAmount { get; set; }
         
