@@ -27,7 +27,9 @@ namespace Lykke.Service.EthereumApi.Controllers
         public async Task<ActionResult> AddAddressToObservationList(
             AddressRequest request)
         {
-            if (await _balanceService.BeginObservationIfNotObservingAsync(request.Address))
+            var address = request.Address.ToLowerInvariant();
+            
+            if (await _balanceService.BeginObservationIfNotObservingAsync(address))
             {
                 return Ok();
             }
@@ -41,7 +43,9 @@ namespace Lykke.Service.EthereumApi.Controllers
         public async Task<ActionResult> DeleteAddressFromObservationList(
             AddressRequest request)
         {
-            if (await _balanceService.EndObservationIfObservingAsync(request.Address))
+            var address = request.Address.ToLowerInvariant();
+            
+            if (await _balanceService.EndObservationIfObservingAsync(address))
             {
                 return Ok();
             }

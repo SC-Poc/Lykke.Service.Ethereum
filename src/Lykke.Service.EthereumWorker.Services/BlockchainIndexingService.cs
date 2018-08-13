@@ -161,6 +161,8 @@ namespace Lykke.Service.EthereumWorker.Services
                     });
                 }
                 
+                _log.Info($"Block [{blockNumber}] has been indexed.");
+                
                 return true;
             }
             catch (Exception e)

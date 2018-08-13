@@ -29,11 +29,13 @@ namespace Lykke.Service.EthereumApi.Controllers
         public async Task<ActionResult<IEnumerable<HistoricalTransactionContract>>> GetIncomingHistory(
             TransactionHistoryRequest request)
         {
+            var address = request.Address.ToLowerInvariant();
+            
             var transactions = await _transactionHistoryService.GetIncomingHistoryAsync
             (
-                address: request.Address,
-                take: request.Take,
-                afterHash: request.AfterHash
+                address,
+                request.Take,
+                request.AfterHash
             );
             
             return Ok(transactions.Select(MapTransactionReceipt));
@@ -43,11 +45,13 @@ namespace Lykke.Service.EthereumApi.Controllers
         public async Task<ActionResult<IEnumerable<HistoricalTransactionContract>>> GetOutgoingHistory(
             TransactionHistoryRequest request)
         {
+            var address = request.Address.ToLowerInvariant();
+            
             var transactions = await _transactionHistoryService.GetOutgoingHistoryAsync
             (
-                address: request.Address,
-                take: request.Take,
-                afterHash: request.AfterHash
+                address,
+                request.Take,
+                request.AfterHash
             );
             
             return Ok(transactions.Select(MapTransactionReceipt));
@@ -60,10 +64,10 @@ namespace Lykke.Service.EthereumApi.Controllers
             {
                 Amount = transactionReceipt.Amount.ToString(),
                 AssetId = Constants.AssetId,
-                FromAddress = transactionReceipt.From,
+                FromAddress = Address.AddChecksum(transactionReceipt.From),
                 Hash = transactionReceipt.Hash,
                 Timestamp = DateTimeOffset.FromUnixTimeSeconds((long) transactionReceipt.Timestamp).UtcDateTime,
-                ToAddress = transactionReceipt.To
+                ToAddress = Address.AddChecksum(transactionReceipt.To)
             };
         }
     }

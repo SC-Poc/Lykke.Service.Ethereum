@@ -28,12 +28,16 @@ namespace Lykke.Service.EthereumApi.Controllers
         public async Task<ActionResult<BuildTransactionResponse>> Build(
             [FromBody] BuildSingleTransactionRequest request)
         {
+            var amount = BigInteger.Parse(request.Amount);
+            var from = request.FromAddress.ToLowerInvariant();
+            var to = request.ToAddress.ToLowerInvariant();
+            
             var buildResult = await _transactionService.BuildTransactionAsync
             (
                 transactionId: request.OperationId,
-                from: request.FromAddress,
-                to: request.ToAddress,
-                amount: BigInteger.Parse(request.Amount),
+                from: from,
+                to: to,
+                amount: amount,
                 includeFee: request.IncludeFee
             );
 
