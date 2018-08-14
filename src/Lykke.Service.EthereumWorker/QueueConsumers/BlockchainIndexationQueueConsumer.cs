@@ -2,7 +2,9 @@
 using System.Linq;
 using System.Numerics;
 using System.Threading.Tasks;
+using Common.Log;
 using JetBrains.Annotations;
+using Lykke.Common.Log;
 using Lykke.Service.EthereumWorker.Core.QueueConsumer;
 using Lykke.Service.EthereumWorker.Core.Services;
 
@@ -12,14 +14,17 @@ namespace Lykke.Service.EthereumWorker.QueueConsumers
     public class BlockchainIndexationQueueConsumer : QueueConsumer<IEnumerable<BigInteger>>
     {
         private readonly IBlockchainIndexingService _blockchainIndexingService;
+        private readonly ILog _log;
         
         
         public BlockchainIndexationQueueConsumer(
             IBlockchainIndexingService blockchainIndexingService,
+            ILogFactory logFactory,
             Settings settings)
             : base(maxDegreeOfParallelism: settings.MaxDegreeOfParallelism, emptyQueueCheckInterval: 5000)
         {
             _blockchainIndexingService = blockchainIndexingService;
+            _log = logFactory.CreateLog(this);
         }
 
         
@@ -39,6 +44,23 @@ namespace Lykke.Service.EthereumWorker.QueueConsumers
             await _blockchainIndexingService.MarkBlocksAsIndexed(indexeBlocks);
         }
         
+        public override void Start()
+        {
+            _log.Info("Starting blockchain observation...");
+            
+            base.Start();
+            
+            _log.Info("Blockchain observation started.");
+        }
+
+        public override void Stop()
+        {
+            _log.Info("Stopping blockchain observation...");
+            
+            base.Stop();
+            
+            _log.Info("Blockchain observation stopped.");
+        }
         
         public class Settings
         {

@@ -53,6 +53,10 @@ namespace Lykke.Service.EthereumWorker.Services
                     
                     _log.Info($"Account [{address}] balance updated to [{balance} {Constants.AssetId}] at block [{bestTrustedBlockNumber}].");
                 }
+                else
+                {
+                    _log.Debug($"Account [{address}] balance is not observable or has alredy been updated.");
+                }
             }
             catch (Exception e)
             {

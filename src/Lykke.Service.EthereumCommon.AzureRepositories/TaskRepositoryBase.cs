@@ -63,8 +63,8 @@ namespace Lykke.Service.EthereumCommon.AzureRepositories
             }
         }
 
-        private static string SerializeObject(
-            object obj)
+        private static string SerializeObject<TObj>(
+            TObj obj)
         {
             return MessagePackSerializer
                 .Serialize(obj)
@@ -80,7 +80,7 @@ namespace Lykke.Service.EthereumCommon.AzureRepositories
 
 
         [MessagePackObject]
-        private class CompletionToken
+        public class CompletionToken
         {
             [Key(0), UsedImplicitly(ImplicitUseKindFlags.Access)]
             public string MessageId { get; set; }

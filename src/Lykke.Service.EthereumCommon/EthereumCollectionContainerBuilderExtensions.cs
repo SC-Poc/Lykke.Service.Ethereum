@@ -1,10 +1,18 @@
-﻿using System;
+﻿// ReSharper disable RedundantUsingDirective
+
+using System;
+using Lykke.Logs;
 using Lykke.Logs.Loggers.LykkeSlack;
 using Lykke.Sdk;
 using Lykke.Sdk.Settings;
 using Lykke.Service.EthereumCommon.Core;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+
+using LogLevel = Microsoft.Extensions.Logging.LogLevel;
+
+// ReSharper restore RedundantUsingDirective
+
 
 namespace Lykke.Service.EthereumCommon
 {
@@ -36,7 +44,7 @@ namespace Lykke.Service.EthereumCommon
                         {
                             extendedLogs.AddAdditionalSlackChannel("BlockChainIntegration", channelOptions =>
                             {
-                                channelOptions.MinLogLevel = LogLevel.Trace;
+                                channelOptions.MinLogLevel = LogLevel.Information;
                             });
     
                             extendedLogs.AddAdditionalSlackChannel("BlockChainIntegrationImportantMessages", channelOptions =>
@@ -46,6 +54,13 @@ namespace Lykke.Service.EthereumCommon
                             });
                         };
     
+                        #else
+
+                        logs.Extended = extendedLogs =>
+                        {
+                            extendedLogs.SetMinimumLevel(LogLevel.Trace);
+                        };
+
                         #endif
                     }
                     else

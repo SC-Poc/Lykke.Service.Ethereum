@@ -24,8 +24,8 @@ namespace Lykke.Service.EthereumWorker.Core.QueueConsumer
             _emptyQueueCheckInterval = emptyQueueCheckInterval;
             _throttler = new SemaphoreSlim(maxDegreeOfParallelism);
         }
-        
-        protected virtual void Dispose(
+
+        private void Dispose(
             bool disposing)
         {
             if (disposing)
@@ -46,7 +46,7 @@ namespace Lykke.Service.EthereumWorker.Core.QueueConsumer
             GC.SuppressFinalize(this);
         }
         
-        public void Start()
+        public virtual void Start()
         {
             if (_executingTask == null)
             {
@@ -55,7 +55,7 @@ namespace Lykke.Service.EthereumWorker.Core.QueueConsumer
             }
         }
 
-        public void Stop()
+        public virtual void Stop()
         {
             if (_executingTask != null)
             {
@@ -101,25 +101,20 @@ namespace Lykke.Service.EthereumWorker.Core.QueueConsumer
                 if (!cancellationToken.IsCancellationRequested)
                 {
                     scheduledTasks.RemoveAll(x => x.IsCompleted);
-                    
-                    try
-                    {
-                        var (nextTaskRetrieved, nextTask) = await TryGetNextTaskAsync();
 
-                        if (nextTaskRetrieved)
-                        {
-                            scheduledTasks.Add
-                            (
-                                ProcessTaskAndReleaseThrottlerAsync(nextTask)
-                            );
-                        }
-                        else
-                        {
-                            await Task.Delay(_emptyQueueCheckInterval, cancellationToken);
-                        }
-                    }
-                    catch (Exception)
+                    var (nextTaskRetrieved, nextTask) = await TryGetNextTaskAsync();
+
+                    if (nextTaskRetrieved)
                     {
+                        scheduledTasks.Add
+                        (
+                            ProcessTaskAndReleaseThrottlerAsync(nextTask)
+                        );
+                    }
+                    else
+                    {
+                        await Task.Delay(_emptyQueueCheckInterval, cancellationToken);
+                        
                         _throttler.Release();
                     }
                 }

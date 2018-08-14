@@ -1,4 +1,5 @@
-﻿using AzureStorage.Queue;
+﻿using System;
+using AzureStorage.Queue;
 using Lykke.Service.EthereumCommon.AzureRepositories;
 using Lykke.Service.EthereumWorker.Core.Domain;
 using Lykke.Service.EthereumWorker.Core.Repositories;
@@ -22,8 +23,9 @@ namespace Lykke.Service.EthereumWorker.AzureRepositories
         {
             var queue = AzureQueueExt.Create
             (
-                connectionString,
-                "balance-observation-tasks"
+                connectionStringManager: connectionString,
+                queueName: "balance-observation-tasks",
+                maxExecutionTimeout: TimeSpan.FromDays(7)
             );
             
             return new BalanceObservationTaskRepository(queue);
