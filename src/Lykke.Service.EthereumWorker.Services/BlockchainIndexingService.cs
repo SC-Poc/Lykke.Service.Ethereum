@@ -229,6 +229,11 @@ namespace Lykke.Service.EthereumWorker.Services
                         await _stateRepository.UpdateAsync(indexationState);
                     }
                 }
+
+                if (blockNumbers.Any())
+                {
+                    _log.Debug($"Blocks [{string.Join(", ", blockNumbers)}] has been marked as indexed.");
+                }
             }
             catch (Exception e)
             {
@@ -243,7 +248,7 @@ namespace Lykke.Service.EthereumWorker.Services
             {
                 await _blockLockRepository.DeleteIfExistsAsync(blockNumber);
                 
-                _log.Debug($"Block indexation lock for block {blockNumber} has been relesed.");
+                _log.Debug($"Block indexation lock for block {blockNumber} has been released.");
             }
             catch (Exception e)
             {

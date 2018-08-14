@@ -55,7 +55,7 @@ namespace Lykke.Service.EthereumWorker.Services
                 }
                 else
                 {
-                    _log.Debug($"Account [{address}] balance is not observable or has alredy been updated.");
+                    _log.Debug($"Account [{address}] balance is not observable or has already been updated.");
                 }
             }
             catch (Exception e)
