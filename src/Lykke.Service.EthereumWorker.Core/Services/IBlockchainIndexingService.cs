@@ -6,13 +6,13 @@ namespace Lykke.Service.EthereumWorker.Core.Services
 {
     public interface IBlockchainIndexingService
     {
-        Task<IEnumerable<BigInteger>> GetNonIndexedBlocksAsync(
+        Task<BigInteger[]> GetNonIndexedBlocksAsync(
             int take);
 
-        Task<IEnumerable<BigInteger>> IndexBlocksAsync(
-            IEnumerable<BigInteger> blockNumbers);
+        Task<BigInteger[]> IndexBlocksAsync(
+            BigInteger[] blockNumbers);
 
         Task MarkBlocksAsIndexed(
-            IEnumerable<BigInteger> blockNumbers);
+            BigInteger[] blockNumbers);
     }
 }

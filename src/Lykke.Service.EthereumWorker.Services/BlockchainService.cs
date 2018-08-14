@@ -84,23 +84,28 @@ namespace Lykke.Service.EthereumWorker.Services
             return _bestTrustedBlockNumber;
         }
 
-        public async Task<TransfactionResult> GetTransactionResultAsync(
+        public async Task<TransactionResult> GetTransactionResultAsync(
             string hash)
         {
             var traces = await GetTransactionTracesAsync(hash);
 
             if (traces.Any())
             {
-                return new TransfactionResult
+                var error = string.Join(";", traces
+                    .Where(x => !string.IsNullOrEmpty(x.Error))
+                    .Select(x => x.Error));
+                
+                return new TransactionResult
                 {
                     BlockNumber = traces.First().BlockNumber,
+                    Error = error,
                     IsCompleted = true,
-                    IsFailed = traces.Any(x => !string.IsNullOrEmpty(x.Error))
+                    IsFailed = !string.IsNullOrEmpty(error)
                 };
             }
             else
             {
-                return new TransfactionResult
+                return new TransactionResult
                 {
                     IsCompleted = false,
                     IsFailed = false

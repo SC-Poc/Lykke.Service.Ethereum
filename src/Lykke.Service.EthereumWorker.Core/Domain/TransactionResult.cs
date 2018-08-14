@@ -2,9 +2,11 @@
 
 namespace Lykke.Service.EthereumWorker.Core.Domain
 {
-    public class TransfactionResult
+    public class TransactionResult
     {
         public BigInteger BlockNumber { get; set; }
+        
+        public string Error { get; set; }
         
         public bool IsCompleted { get; set; }
         

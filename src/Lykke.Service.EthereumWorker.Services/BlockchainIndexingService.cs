@@ -48,90 +48,119 @@ namespace Lykke.Service.EthereumWorker.Services
         }
         
 
-        public async Task<IEnumerable<BigInteger>> GetNonIndexedBlocksAsync(
+        public async Task<BigInteger[]> GetNonIndexedBlocksAsync(
             int take)
         {
-            var nonIndexedBlocks = new List<BigInteger>(take);
-            
-            using (await _stateRepository.WaitLockAsync())
+            try
             {
-                var indexationState = await _stateRepository.GetOrCreateAsync();
                 
-                // Update best block
-                
-                var bestBlockNumber = await _blockchainService.GetBestTrustedBlockNumberAsync();
-                
-                if (indexationState.TryToUpdateBestBlock(bestBlockNumber))
-                {
-                    await _stateRepository.UpdateAsync(indexationState);
-                }
+                var nonIndexedBlocks = new List<BigInteger>(take);
 
-                // Get and clean up block locks
-                var locksExpiredOn = DateTime.UtcNow - _blockLockDuration;
-                
-                var blockLocks = (await _blockLockRepository.GetAsync())
-                    .ToList();
-                
-                var expiredBlockLocks = blockLocks
-                    .Where(x => x.LockedOn <= locksExpiredOn)
-                    .ToList();
-
-                foreach (var @lock in expiredBlockLocks)
+                using (await _stateRepository.WaitLockAsync())
                 {
-                    blockLocks.Remove(@lock);
+                    var indexationState = await _stateRepository.GetOrCreateAsync();
 
-                    await ReleaseBlockLockAsync(@lock.BlockNumber);
-                }
-                
-                // Get non-indexed blocks
-                foreach (var blockNumber in indexationState.GetNonIndexedBlockNumbers())
-                {
-                    if (blockLocks.All(x => x.BlockNumber != blockNumber))
+                    // Update best block
+
+                    var bestBlockNumber = await _blockchainService.GetBestTrustedBlockNumberAsync();
+
+                    if (indexationState.TryToUpdateBestBlock(bestBlockNumber))
                     {
-                        nonIndexedBlocks.Add(blockNumber);
-
-                        await _blockLockRepository.InsertOrReplaceAsync(blockNumber);
-                    }
-                    else
-                    {
-                        continue;
+                        await _stateRepository.UpdateAsync(indexationState);
                     }
 
-                    if (nonIndexedBlocks.Count == take)
+                    // Get and clean up block locks
+                    var locksExpiredOn = DateTime.UtcNow - _blockLockDuration;
+
+                    var blockLocks = (await _blockLockRepository.GetAsync())
+                        .ToList();
+
+                    var expiredBlockLocks = blockLocks
+                        .Where(x => x.LockedOn <= locksExpiredOn)
+                        .ToList();
+
+                    foreach (var @lock in expiredBlockLocks)
                     {
-                        break;
+                        blockLocks.Remove(@lock);
+
+                        _log.Debug($"Releasing expired indexation lock for block {@lock.BlockNumber}...");
+
+                        await ReleaseBlockLockAsync(@lock.BlockNumber);
+                    }
+
+                    // Get non-indexed blocks
+                    foreach (var blockNumber in indexationState.GetNonIndexedBlockNumbers())
+                    {
+                        if (blockLocks.All(x => x.BlockNumber != blockNumber))
+                        {
+                            nonIndexedBlocks.Add(blockNumber);
+
+                            await _blockLockRepository.InsertOrReplaceAsync(blockNumber);
+                        }
+                        else
+                        {
+                            continue;
+                        }
+
+                        if (nonIndexedBlocks.Count == take)
+                        {
+                            break;
+                        }
                     }
                 }
+
+                _log.Debug
+                (
+                    nonIndexedBlocks.Any()
+                        ? $"Got non-indexed blocks [{string.Join(", ", nonIndexedBlocks)}]."
+                        : "Non-indexed blocks not found."
+                );
+
+                return nonIndexedBlocks.ToArray();
+
             }
+            catch (Exception e)
+            {
+                _log.Error(e, "Failed to get non indexed blocks.");
 
-            return nonIndexedBlocks;
+                return Array.Empty<BigInteger>();
+            }
         }
 
-        public async Task<IEnumerable<BigInteger>> IndexBlocksAsync(
-            IEnumerable<BigInteger> blockNumbers)
+        public async Task<BigInteger[]> IndexBlocksAsync(
+            BigInteger[] blockNumbers)
         {
-            var indexedBlocks = new ConcurrentBag<BigInteger>();
+            try
+            {
+                var indexedBlocks = new ConcurrentBag<BigInteger>();
             
-            var indexationTasks = blockNumbers.Select
-            (                
+                var indexationTasks = blockNumbers.Select
+                (                
                     
-                blockNumber => Task.Run(async () =>
-                {
-                    if (await IndexBlockAsync(blockNumber))
+                    blockNumber => Task.Run(async () =>
                     {
-                        indexedBlocks.Add(blockNumber);
-                    }
-                    else
-                    {
-                        await ReleaseBlockLockAsync(blockNumber);
-                    }
-                })
+                        if (await IndexBlockAsync(blockNumber))
+                        {
+                            indexedBlocks.Add(blockNumber);
+                        }
+                        else
+                        {
+                            await ReleaseBlockLockAsync(blockNumber);
+                        }
+                    })
                 
-            ).ToList();
+                ).ToList();
 
-            await Task.WhenAll(indexationTasks);
+                await Task.WhenAll(indexationTasks);
             
-            return indexedBlocks;
+                return indexedBlocks.ToArray();
+            }
+            catch (Exception e)
+            {
+                _log.Error(e, $"Failed to index blocks [{string.Join(", ", blockNumbers)}].");
+
+                return Array.Empty<BigInteger>();
+            }
         }
 
         private async Task<bool> IndexBlockAsync(
@@ -176,27 +205,34 @@ namespace Lykke.Service.EthereumWorker.Services
         }
         
         public async Task MarkBlocksAsIndexed(
-            IEnumerable<BigInteger> blockNumbers)
+            BigInteger[] blockNumbers)
         {
-            using (await _stateRepository.WaitLockAsync())
+            try
             {
-                var indexationState = await _stateRepository.GetOrCreateAsync();
-                var stateUpdateIsNecessary = false;
-                
-                foreach (var blockNumber in blockNumbers)
+                using (await _stateRepository.WaitLockAsync())
                 {
-                    if (indexationState.TryToMarkBlockAsIndexed(blockNumber))
+                    var indexationState = await _stateRepository.GetOrCreateAsync();
+                    var stateUpdateIsNecessary = false;
+                
+                    foreach (var blockNumber in blockNumbers)
                     {
-                        stateUpdateIsNecessary = true;
+                        if (indexationState.TryToMarkBlockAsIndexed(blockNumber))
+                        {
+                            stateUpdateIsNecessary = true;
+                        }
+
+                        await ReleaseBlockLockAsync(blockNumber);
                     }
 
-                    await ReleaseBlockLockAsync(blockNumber);
+                    if (stateUpdateIsNecessary)
+                    {
+                        await _stateRepository.UpdateAsync(indexationState);
+                    }
                 }
-
-                if (stateUpdateIsNecessary)
-                {
-                    await _stateRepository.UpdateAsync(indexationState);
-                }
+            }
+            catch (Exception e)
+            {
+                _log.Error(e, $"Failed to mark blocks [{string.Join(", ", blockNumbers)}] as indexed.");
             }
         }
 
@@ -206,6 +242,8 @@ namespace Lykke.Service.EthereumWorker.Services
             try
             {
                 await _blockLockRepository.DeleteIfExistsAsync(blockNumber);
+                
+                _log.Debug($"Block indexation lock for block {blockNumber} has been relesed.");
             }
             catch (Exception e)
             {

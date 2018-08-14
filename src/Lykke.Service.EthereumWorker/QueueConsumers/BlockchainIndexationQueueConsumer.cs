@@ -11,7 +11,7 @@ using Lykke.Service.EthereumWorker.Core.Services;
 namespace Lykke.Service.EthereumWorker.QueueConsumers
 {
     [UsedImplicitly]
-    public class BlockchainIndexationQueueConsumer : QueueConsumer<IEnumerable<BigInteger>>
+    public class BlockchainIndexationQueueConsumer : QueueConsumer<BigInteger[]>
     {
         private readonly IBlockchainIndexingService _blockchainIndexingService;
         private readonly ILog _log;
@@ -28,16 +28,15 @@ namespace Lykke.Service.EthereumWorker.QueueConsumers
         }
 
         
-        protected override async Task<(bool, IEnumerable<BigInteger>)> TryGetNextTaskAsync()
+        protected override async Task<(bool, BigInteger[])> TryGetNextTaskAsync()
         {
-            var nonIndexedBlockBatch = (await _blockchainIndexingService.GetNonIndexedBlocksAsync(take: 10))
-                .ToList();
+            var nonIndexedBlockBatch = await _blockchainIndexingService.GetNonIndexedBlocksAsync(take: 10);
 
             return (nonIndexedBlockBatch.Any(), nonIndexedBlockBatch);
         }
 
         protected override async Task ProcessTaskAsync(
-            IEnumerable<BigInteger> nonIndexedBlockBatch)
+            BigInteger[] nonIndexedBlockBatch)
         {
             var indexeBlocks = await _blockchainIndexingService.IndexBlocksAsync(nonIndexedBlockBatch);
 

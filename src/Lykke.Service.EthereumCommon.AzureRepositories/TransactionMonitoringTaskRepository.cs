@@ -1,4 +1,5 @@
-﻿using AzureStorage.Queue;
+﻿using System;
+using AzureStorage.Queue;
 using JetBrains.Annotations;
 using Lykke.Service.EthereumCommon.Core.Domain;
 using Lykke.Service.EthereumCommon.Core.Repositories;
@@ -22,8 +23,9 @@ namespace Lykke.Service.EthereumCommon.AzureRepositories
         {
             var queue = AzureQueueExt.Create
             (
-                connectionString,
-                "transaction-monitoring-tasks"
+                connectionStringManager: connectionString,
+                queueName: "transaction-monitoring-tasks",
+                maxExecutionTimeout: TimeSpan.FromDays(7)
             );
             
             return new TransactionMonitoringTaskRepository(queue);

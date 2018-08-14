@@ -15,7 +15,7 @@ namespace Lykke.Service.EthereumWorker.Core.Services
         
         Task<BigInteger> GetBestTrustedBlockNumberAsync();
 
-        Task<TransfactionResult> GetTransactionResultAsync(
+        Task<TransactionResult> GetTransactionResultAsync(
             string hash);
         
         Task<IEnumerable<TransactionReceipt>> GetTransactionReceiptsAsync(
