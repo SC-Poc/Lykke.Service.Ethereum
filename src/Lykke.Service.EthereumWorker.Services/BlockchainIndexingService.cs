@@ -68,6 +68,8 @@ namespace Lykke.Service.EthereumWorker.Services
                     if (indexationState.TryToUpdateBestBlock(bestBlockNumber))
                     {
                         await _stateRepository.UpdateAsync(indexationState);
+                        
+                        _log.Info($"Best block updated to {bestBlockNumber}.");
                     }
 
                     // Get and clean up block locks
