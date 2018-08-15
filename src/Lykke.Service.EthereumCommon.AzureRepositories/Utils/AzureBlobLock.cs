@@ -85,7 +85,7 @@ namespace Lykke.Service.EthereumCommon.AzureRepositories.Utils
                     (
                         _lockDuration != -1 ? TimeSpan.FromSeconds(_lockDuration) : default(TimeSpan?)
                     );
-                    
+
                     return new LockReleaser(_lockBlob, leaseId);
                 }
                 catch (StorageException e) when (e.RequestInformation.HttpStatusCode == StatusCodes.Status409Conflict)
@@ -115,7 +115,7 @@ namespace Lykke.Service.EthereumCommon.AzureRepositories.Utils
                 _lockBlob.ReleaseLeaseAsync(new AccessCondition
                 {
                     LeaseId = _leaseId
-                });
+                }).Wait();
             }
         }
     }

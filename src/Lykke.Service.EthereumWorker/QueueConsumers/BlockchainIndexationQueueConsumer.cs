@@ -15,22 +15,24 @@ namespace Lykke.Service.EthereumWorker.QueueConsumers
     {
         private readonly IBlockchainIndexingService _blockchainIndexingService;
         private readonly ILog _log;
+        private readonly int _maxDegreeOfParallelism;
         
         
         public BlockchainIndexationQueueConsumer(
             IBlockchainIndexingService blockchainIndexingService,
             ILogFactory logFactory,
             Settings settings)
-            : base(maxDegreeOfParallelism: settings.MaxDegreeOfParallelism, emptyQueueCheckInterval: 5000)
+            : base(emptyQueueCheckInterval: 5000)
         {
             _blockchainIndexingService = blockchainIndexingService;
             _log = logFactory.CreateLog(this);
+            _maxDegreeOfParallelism = settings.MaxDegreeOfParallelism;
         }
 
         
         protected override async Task<(bool, BigInteger[])> TryGetNextTaskAsync()
         {
-            var nonIndexedBlockBatch = await _blockchainIndexingService.GetNonIndexedBlocksAsync(take: 10);
+            var nonIndexedBlockBatch = await _blockchainIndexingService.GetNonIndexedBlocksAsync(take: _maxDegreeOfParallelism);
 
             return (nonIndexedBlockBatch.Any(), nonIndexedBlockBatch);
         }

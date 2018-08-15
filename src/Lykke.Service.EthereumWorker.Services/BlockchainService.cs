@@ -72,7 +72,7 @@ namespace Lykke.Service.EthereumWorker.Services
                         var bestBlockNumber = (await _web3.Eth.Blocks.GetBlockNumber.SendRequestAsync()).Value;
                         
                         _bestTrustedBlockNumber =  bestBlockNumber - _confirmationLevel;
-                        _bestTrustedBlockExpiration = DateTime.UtcNow.AddSeconds(5);
+                        _bestTrustedBlockExpiration = DateTime.UtcNow.AddSeconds(30);
                     }
                 }
                 finally

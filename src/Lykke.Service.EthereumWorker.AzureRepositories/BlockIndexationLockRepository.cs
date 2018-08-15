@@ -46,12 +46,12 @@ namespace Lykke.Service.EthereumWorker.AzureRepositories
         }
         
         
-        public async Task DeleteIfExistsAsync(
+        public Task DeleteIfExistsAsync(
             BigInteger blockNumber)
         {
             var (partitionKey, rowKey) = GetKeys(blockNumber);
 
-            await _locks.DeleteIfExistAsync
+            return _locks.DeleteIfExistAsync
             (
                 partitionKey: partitionKey,
                 rowKey: rowKey
@@ -68,12 +68,12 @@ namespace Lykke.Service.EthereumWorker.AzureRepositories
                 });
         }
 
-        public async Task InsertOrReplaceAsync(
+        public Task InsertOrReplaceAsync(
             BigInteger blockNumber)
         {
             var (partitionKey, rowKey) = GetKeys(blockNumber);
 
-            await _locks.InsertOrReplaceAsync(new BlockIndexationLockEntity
+            return _locks.InsertOrReplaceAsync(new BlockIndexationLockEntity
             {
                 BlockNumber = blockNumber,
                 LockedOn = DateTime.UtcNow,
