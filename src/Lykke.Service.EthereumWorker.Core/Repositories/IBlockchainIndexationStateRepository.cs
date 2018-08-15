@@ -1,6 +1,7 @@
-﻿using System;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
+using Lykke.Service.EthereumWorker.Core.DistributedLock;
 using Lykke.Service.EthereumWorker.Core.Domain;
+
 
 namespace Lykke.Service.EthereumWorker.Core.Repositories
 {
@@ -11,6 +12,6 @@ namespace Lykke.Service.EthereumWorker.Core.Repositories
         Task UpdateAsync(
             BlockchainIndexationState state);
 
-        Task<IDisposable> WaitLockAsync();
+        Task<IDistributedLockToken> WaitLockAsync();
     }
 }

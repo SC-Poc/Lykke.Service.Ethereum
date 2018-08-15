@@ -1,11 +1,12 @@
 ﻿using System;
 using System.Threading.Tasks;
+using Lykke.Service.EthereumWorker.Core.DistributedLock;
 using Lykke.SettingsReader;
 using Microsoft.AspNetCore.Http;
 using Microsoft.WindowsAzure.Storage;
 using Microsoft.WindowsAzure.Storage.Blob;
 
-namespace Lykke.Service.EthereumCommon.AzureRepositories.Utils
+namespace Lykke.Service.EthereumWorker.AzureRepositories.AzureBlockLock
 {
     public class AzureBlobLock : IDistributedLock
     {
@@ -75,7 +76,7 @@ namespace Lykke.Service.EthereumCommon.AzureRepositories.Utils
             }
         }
         
-        public async Task<IDisposable> WaitAsync()
+        public async Task<IDistributedLockToken> WaitAsync()
         {
             while (true)
             {
@@ -95,7 +96,7 @@ namespace Lykke.Service.EthereumCommon.AzureRepositories.Utils
             }
         }
         
-        private class LockReleaser : IDisposable
+        private class LockReleaser : IDistributedLockToken
         {
             private readonly string _leaseId;
             private readonly CloudBlockBlob _lockBlob;
@@ -110,12 +111,12 @@ namespace Lykke.Service.EthereumCommon.AzureRepositories.Utils
             }
             
             
-            public void Dispose()
+            public Task ReleaseAsync()
             {
-                _lockBlob.ReleaseLeaseAsync(new AccessCondition
+                return _lockBlob.ReleaseLeaseAsync(new AccessCondition
                 {
                     LeaseId = _leaseId
-                }).Wait();
+                });
             }
         }
     }

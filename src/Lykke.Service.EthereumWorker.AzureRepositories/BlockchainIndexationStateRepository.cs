@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
 using AzureStorage;
@@ -7,11 +6,13 @@ using AzureStorage.Blob;
 using Common.Log;
 using Lykke.Common.Log;
 using Lykke.Service.EthereumCommon.AzureRepositories;
-using Lykke.Service.EthereumCommon.AzureRepositories.Utils;
+using Lykke.Service.EthereumWorker.AzureRepositories.AzureBlockLock;
+using Lykke.Service.EthereumWorker.Core.DistributedLock;
 using Lykke.Service.EthereumWorker.Core.Domain;
 using Lykke.Service.EthereumWorker.Core.Repositories;
 using Lykke.SettingsReader;
 using MessagePack;
+
 
 namespace Lykke.Service.EthereumWorker.AzureRepositories
 {
@@ -84,7 +85,7 @@ namespace Lykke.Service.EthereumWorker.AzureRepositories
             }
         }
 
-        public Task<IDisposable> WaitLockAsync()
+        public Task<IDistributedLockToken> WaitLockAsync()
         {
             return _lock.WaitAsync();
         }
