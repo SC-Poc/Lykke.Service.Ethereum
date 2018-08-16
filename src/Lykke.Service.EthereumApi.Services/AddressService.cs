@@ -21,7 +21,7 @@ namespace Lykke.Service.EthereumApi.Services
         public async Task<bool> ValidateAsync(
             string address)
         {
-            return Address.ValidateFormatAndChecksum(address)
+            return Address.ValidateFormatAndChecksum(address, true, true)
                 && await _blockchainService.IsWalletAsync(address);
         }
     }

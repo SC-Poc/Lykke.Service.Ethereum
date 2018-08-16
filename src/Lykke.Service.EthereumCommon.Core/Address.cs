@@ -48,10 +48,26 @@ namespace Lykke.Service.EthereumCommon.Core
         
         
         public static bool ValidateFormatAndChecksum(
-            string addressString)
+            string addressString,
+            bool allowAllLowerCase,
+            bool allowAllUpperCase)
         {
-            return ValidateFormat(addressString)
-                && ValidateChecksum(addressString);
+            if (!ValidateFormat(addressString))
+            {
+                return false;
+            }
+
+            if (allowAllLowerCase && addressString.ToLowerInvariant() == addressString)
+            {
+                return true;
+            }
+            
+            if (allowAllUpperCase && addressString.ToUpperInvariant() == addressString)
+            {
+                return true;
+            }
+
+            return ValidateChecksum(addressString);
         }
 
         private static bool ValidateChecksum(

@@ -32,7 +32,7 @@ namespace Lykke.Service.EthereumApi.Validation
             this IRuleBuilderInitial<T, string> ruleBuilder)
         {
             ruleBuilder
-                .Must(Address.ValidateFormatAndChecksum)
+                .Must(x => Address.ValidateFormatAndChecksum(x, true, true))
                 .WithMessage(x => $"Specified address [{x}] is not valid.");
         }
 
