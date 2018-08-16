@@ -1,5 +1,8 @@
 ﻿using System;
 using JetBrains.Annotations;
+using Lykke.Common.Chaos;
+using Lykke.SettingsReader.Attributes;
+
 
 namespace Lykke.Service.EthereumWorker.Settings
 {
@@ -9,6 +12,9 @@ namespace Lykke.Service.EthereumWorker.Settings
         public int BalanceObservationMaxDegreeOfParallelism { get; set; }
         
         public int BlockchainIndexingMaxDegreeOfParallelism { get; set; }
+        
+        [Optional]
+        public ChaosSettings Chaos { get; set; }
         
         public int ConfirmationLevel { get; set; } 
         

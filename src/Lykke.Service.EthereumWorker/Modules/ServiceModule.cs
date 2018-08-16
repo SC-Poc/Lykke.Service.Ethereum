@@ -1,6 +1,7 @@
 ﻿using Autofac;
 using Common;
 using JetBrains.Annotations;
+using Lykke.Common.Chaos;
 using Lykke.Common.Log;
 using Lykke.Service.EthereumCommon.AzureRepositories;
 using Lykke.Service.EthereumCommon.Core.Repositories;
@@ -35,6 +36,9 @@ namespace Lykke.Service.EthereumWorker.Modules
         protected override void Load(
             ContainerBuilder builder)
         {
+            builder
+                .RegisterChaosKitty(ServiceSettings.Chaos);
+            
             LoadQueueConsumers(builder);
             
             LoadRepositories(builder);

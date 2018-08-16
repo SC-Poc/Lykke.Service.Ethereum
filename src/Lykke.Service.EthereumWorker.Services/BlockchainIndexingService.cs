@@ -8,6 +8,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Common.Log;
 using JetBrains.Annotations;
+using Lykke.Common.Chaos;
 using Lykke.Common.Log;
 using Lykke.Service.EthereumCommon.Core.Domain;
 using Lykke.Service.EthereumCommon.Core.Repositories;
@@ -28,9 +29,9 @@ namespace Lykke.Service.EthereumWorker.Services
         private readonly IBlockchainService _blockchainService;
         private readonly TimeSpan _blockLockDuration;
         private readonly IBlockIndexationLockRepository _blockLockRepository;
+        private readonly IChaosKitty _chaosKitty;
         private readonly ILog _log;
         private readonly IBlockchainIndexationStateRepository _stateRepository;
-        private readonly TelemetryClient _telemetryClient;
         private readonly ITransactionReceiptRepository _transactionReceiptRepository;
 
         
@@ -38,6 +39,7 @@ namespace Lykke.Service.EthereumWorker.Services
             IBalanceObservationTaskRepository balanceObservationTaskRepository,
             IBlockchainService blockchainServiceService,
             IBlockIndexationLockRepository blockLockRepository,
+            IChaosKitty chaosKitty,
             ILogFactory logFactory,
             Settings settings,
             IBlockchainIndexationStateRepository stateRepository,
@@ -47,9 +49,9 @@ namespace Lykke.Service.EthereumWorker.Services
             _blockchainService = blockchainServiceService;
             _blockLockDuration = settings.BlockLockDuration;
             _blockLockRepository = blockLockRepository;
+            _chaosKitty = chaosKitty;
             _log = logFactory.CreateLog(this);
             _stateRepository = stateRepository;
-            _telemetryClient = new TelemetryClient();
             _transactionReceiptRepository = transactionReceiptRepository;
         }
 
@@ -72,6 +74,8 @@ namespace Lykke.Service.EthereumWorker.Services
 
                     if (indexationState.TryToUpdateBestBlock(bestBlockNumber))
                     {
+                        _chaosKitty.Meow("Failed to update indexation state.");
+                        
                         await _stateRepository.UpdateAsync(indexationState);
                         
                         _log.Info($"Best block updated to {bestBlockNumber}.");
@@ -102,9 +106,16 @@ namespace Lykke.Service.EthereumWorker.Services
                     {
                         if (blockLocks.All(x => x.BlockNumber != blockNumber))
                         {
-                            nonIndexedBlocks.Add(blockNumber);
-
-                            await _blockLockRepository.InsertOrReplaceAsync(blockNumber);
+                            try
+                            {
+                                await _blockLockRepository.InsertOrReplaceAsync(blockNumber);
+                                
+                                nonIndexedBlocks.Add(blockNumber);
+                            }
+                            catch (Exception e)
+                            {
+                                _log.Error(e, $"Failed to set indexation lock for block {blockNumber}");
+                            }
                         }
                         else
                         {
@@ -116,7 +127,6 @@ namespace Lykke.Service.EthereumWorker.Services
                             break;
                         }
                     }
-
                 }
                 finally
                 {

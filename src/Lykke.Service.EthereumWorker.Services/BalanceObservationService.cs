@@ -2,6 +2,7 @@
 using System.Threading.Tasks;
 using Common.Log;
 using JetBrains.Annotations;
+using Lykke.Common.Chaos;
 using Lykke.Common.Log;
 using Lykke.Service.EthereumCommon.Core;
 using Lykke.Service.EthereumCommon.Core.Repositories;
@@ -17,6 +18,7 @@ namespace Lykke.Service.EthereumWorker.Services
     {
         private readonly IBalanceObservationTaskRepository _balanceObservationTaskRepository;
         private readonly IBlockchainService _blockchainService;
+        private readonly IChaosKitty _chaosKitty;
         private readonly ILog _log;
         private readonly IObservableBalanceRepository _observableBalanceRepository;
 
@@ -24,11 +26,13 @@ namespace Lykke.Service.EthereumWorker.Services
         public BalanceObservationService(
             IBalanceObservationTaskRepository balanceObservationTaskRepository,
             IBlockchainService blockchainService,
+            IChaosKitty chaosKitty,
             ILogFactory logFactory,
             IObservableBalanceRepository observableBalanceRepository)
         {
             _balanceObservationTaskRepository = balanceObservationTaskRepository;
             _blockchainService = blockchainService;
+            _chaosKitty = chaosKitty;
             _log = logFactory.CreateLog(this);
             _observableBalanceRepository = observableBalanceRepository;
         }
@@ -49,6 +53,8 @@ namespace Lykke.Service.EthereumWorker.Services
                     currentBalance.Amount = balance;
                     currentBalance.BlockNumber = bestTrustedBlockNumber;
 
+                    _chaosKitty.Meow(address);    
+                    
                     await _observableBalanceRepository.UpdateSafelyAsync(currentBalance);
                     
                     _log.Info($"Account [{address}] balance updated to [{balance} {Constants.AssetId}] at block [{bestTrustedBlockNumber}].");

@@ -3,6 +3,7 @@ using System.Numerics;
 using System.Threading.Tasks;
 using Common.Log;
 using JetBrains.Annotations;
+using Lykke.Common.Chaos;
 using Lykke.Common.Log;
 using Lykke.Service.EthereumApi.Core.Domain;
 using Lykke.Service.EthereumApi.Core.Services;
@@ -16,6 +17,7 @@ namespace Lykke.Service.EthereumApi.Services
     public class TransactionService : ITransactionService
     {
         private readonly IBlockchainService _blockchainService;
+        private readonly IChaosKitty _chaosKitty;
         private readonly ILog _log;
         private readonly BigInteger _minimalTransactionAmount;
         private readonly ITransactionMonitoringTaskRepository _tranferTransactionMonitoringTaskRepository;
@@ -24,12 +26,14 @@ namespace Lykke.Service.EthereumApi.Services
         
         public TransactionService(
             IBlockchainService blockchainService,
+            IChaosKitty chaosKitty,
             ILogFactory logFactory,
             ITransactionMonitoringTaskRepository tranferTransactionMonitoringTaskRepository,
             ITransactionRepository transactionRepository,
             Settings settings)
         {
             _blockchainService = blockchainService;
+            _chaosKitty = chaosKitty;
             _log = logFactory.CreateLog(this);
             _minimalTransactionAmount = settings.MinimalTransactionAmount;
             _tranferTransactionMonitoringTaskRepository = tranferTransactionMonitoringTaskRepository;
@@ -83,6 +87,8 @@ namespace Lykke.Service.EthereumApi.Services
                     data: await _blockchainService.BuildTransactionAsync(from, to, amount, gasPrice)
                 );
 
+                _chaosKitty.Meow(transactionId);
+                
                 await _transactionRepository.AddAsync(transaction);
 
                 _log.Info($"Transaction [{transactionId}] has been built.");
@@ -142,8 +148,6 @@ namespace Lykke.Service.EthereumApi.Services
                             signedData: signedTxData
                         );
                         
-                        await _transactionRepository.UpdateAsync(transaction);
-                        
                         await _tranferTransactionMonitoringTaskRepository.EnqueueAsync
                         (
                             new TransactionMonitoringTask
@@ -151,6 +155,12 @@ namespace Lykke.Service.EthereumApi.Services
                                 TransactionId = transactionId
                             }
                         );
+                        
+                        _chaosKitty.Meow(transactionId);
+                        
+                        await _transactionRepository.UpdateAsync(transaction);
+                        
+                        _chaosKitty.Meow(transactionId);
                         
                         return BroadcastTransactionResult.Success(txHash);
                     

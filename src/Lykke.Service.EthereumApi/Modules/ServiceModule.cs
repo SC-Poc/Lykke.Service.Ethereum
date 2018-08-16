@@ -1,6 +1,7 @@
 ﻿using System.Numerics;
 using Autofac;
 using JetBrains.Annotations;
+using Lykke.Common.Chaos;
 using Lykke.Common.Log;
 using Lykke.Service.EthereumApi.Core.Services;
 using Lykke.Service.EthereumApi.Services;
@@ -33,6 +34,9 @@ namespace Lykke.Service.EthereumApi.Modules
         protected override void Load(
             ContainerBuilder builder)
         {
+            builder
+                .RegisterChaosKitty(ServiceSettings.Chaos);
+            
             LoadRepositories(builder);
             
             LoadServices(builder);
