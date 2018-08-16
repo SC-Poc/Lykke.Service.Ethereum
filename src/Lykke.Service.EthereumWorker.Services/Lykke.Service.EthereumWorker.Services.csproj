@@ -37,6 +37,7 @@
     <PackageReference Include="Lykke.Common" Version="7.0.3" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\Lykke.Service.EthereumCommon.Services\Lykke.Service.EthereumCommon.Services.csproj" />
     <ProjectReference Include="..\Lykke.Service.EthereumWorker.AzureRepositories\Lykke.Service.EthereumWorker.AzureRepositories.csproj" />
     <ProjectReference Include="..\Lykke.Service.EthereumWorker.Core\Lykke.Service.EthereumWorker.Core.csproj" />
     <ProjectReference Include="..\Lykke.Service.EthereumCommon.AzureRepositories\Lykke.Service.EthereumCommon.AzureRepositories.csproj" />

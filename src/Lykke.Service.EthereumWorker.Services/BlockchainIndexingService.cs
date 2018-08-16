@@ -14,6 +14,9 @@ using Lykke.Service.EthereumCommon.Core.Repositories;
 using Lykke.Service.EthereumWorker.Core.Domain;
 using Lykke.Service.EthereumWorker.Core.Repositories;
 using Lykke.Service.EthereumWorker.Core.Services;
+using Microsoft.ApplicationInsights;
+using Microsoft.ApplicationInsights.DataContracts;
+using Microsoft.ApplicationInsights.Extensibility;
 
 
 namespace Lykke.Service.EthereumWorker.Services
@@ -27,6 +30,7 @@ namespace Lykke.Service.EthereumWorker.Services
         private readonly IBlockIndexationLockRepository _blockLockRepository;
         private readonly ILog _log;
         private readonly IBlockchainIndexationStateRepository _stateRepository;
+        private readonly TelemetryClient _telemetryClient;
         private readonly ITransactionReceiptRepository _transactionReceiptRepository;
 
         
@@ -45,6 +49,7 @@ namespace Lykke.Service.EthereumWorker.Services
             _blockLockRepository = blockLockRepository;
             _log = logFactory.CreateLog(this);
             _stateRepository = stateRepository;
+            _telemetryClient = new TelemetryClient();
             _transactionReceiptRepository = transactionReceiptRepository;
         }
 
@@ -261,6 +266,7 @@ namespace Lykke.Service.EthereumWorker.Services
             }
         }
 
+        
         private async Task ReleaseBlockLockAsync(
             BigInteger blockNumber)
         {
@@ -275,7 +281,6 @@ namespace Lykke.Service.EthereumWorker.Services
                 _log.Error(e, $"Failed to release indexation lock for block {blockNumber}.");
             }
         }
-
 
         public class Settings
         {

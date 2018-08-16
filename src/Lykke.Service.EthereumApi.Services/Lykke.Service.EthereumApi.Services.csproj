@@ -40,5 +40,6 @@
   <ItemGroup>
     <ProjectReference Include="..\Lykke.Service.EthereumApi.Core\Lykke.Service.EthereumApi.Core.csproj" />
     <ProjectReference Include="..\Lykke.Service.EthereumCommon.AzureRepositories\Lykke.Service.EthereumCommon.AzureRepositories.csproj" />
+    <ProjectReference Include="..\Lykke.Service.EthereumCommon.Services\Lykke.Service.EthereumCommon.Services.csproj" />
   </ItemGroup>
 </Project>

@@ -40,8 +40,6 @@ namespace Lykke.Service.EthereumWorker.Modules
             LoadRepositories(builder);
             
             LoadServices(builder);
-            
-            LoadUtils(builder);
         }
 
         private void LoadQueueConsumers(
@@ -209,7 +207,8 @@ namespace Lykke.Service.EthereumWorker.Modules
             builder
                 .RegisterInstance(new BlockchainService.Settings
                 {
-                    ConfirmationLevel = ServiceSettings.ConfirmationLevel
+                    ConfirmationLevel = ServiceSettings.ConfirmationLevel,
+                    ParityNodeUrl = ServiceSettings.ParityNodeUrl
                 })
                 .AsSelf();
             
@@ -219,19 +218,6 @@ namespace Lykke.Service.EthereumWorker.Modules
                 .RegisterType<TransactionMonitoringService>()
                 .As<ITransactionMonitoringService>()
                 .SingleInstance();
-        }
-        
-        private void LoadUtils(
-            ContainerBuilder builder)
-        {
-            // Web3
-
-            builder
-                .RegisterInstance(new Web3Parity
-                (
-                    url: ServiceSettings.ParityNodeUrl
-                ))
-                .AsSelf();
         }
     }
 }

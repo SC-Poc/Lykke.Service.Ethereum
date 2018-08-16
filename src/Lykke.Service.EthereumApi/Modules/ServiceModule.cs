@@ -36,8 +36,6 @@ namespace Lykke.Service.EthereumApi.Modules
             LoadRepositories(builder);
             
             LoadServices(builder);
-            
-            LoadUtils(builder);
         }
 
         private void LoadRepositories(
@@ -117,7 +115,8 @@ namespace Lykke.Service.EthereumApi.Modules
                 .RegisterInstance(new BlockchainService.Settings
                 {
                     MaxGasPriceManager = _appSettings.Nested(x => x.ApiService.MaximalGasPrice),
-                    MinGasPriceManager = _appSettings.Nested(x => x.ApiService.MinimalGasPrice)
+                    MinGasPriceManager = _appSettings.Nested(x => x.ApiService.MinimalGasPrice),
+                    ParityNodeUrl = ServiceSettings.ParityNodeUrl
                 })
                 .AsSelf();
             
@@ -141,19 +140,6 @@ namespace Lykke.Service.EthereumApi.Modules
                 {
                     MinimalTransactionAmount = BigInteger.Parse(ServiceSettings.MinimalTransactionAmount)
                 })
-                .AsSelf();
-        }
-
-        private void LoadUtils(
-            ContainerBuilder builder)
-        {
-            // Web3
-
-            builder
-                .RegisterInstance(new Web3Parity
-                (
-                    url: ServiceSettings.ParityNodeUrl
-                ))
                 .AsSelf();
         }
     }

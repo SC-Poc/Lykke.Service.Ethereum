@@ -8,58 +8,69 @@ using Lykke.Common.Log;
 using Lykke.Service.EthereumApi.Core.Services;
 using Lykke.Service.EthereumCommon.Core;
 using Lykke.Service.EthereumCommon.Core.Domain;
+using Lykke.Service.EthereumCommon.Services;
 using Lykke.SettingsReader;
 using MessagePack;
 using Nethereum.Hex.HexConvertors.Extensions;
 using Nethereum.Hex.HexTypes;
 using Nethereum.JsonRpc.Client;
-using Nethereum.Parity;
 using Nethereum.RPC.Eth.DTOs;
+using Transaction = Nethereum.RPC.Eth.DTOs.Transaction;
+using TransactionReceipt = Nethereum.RPC.Eth.DTOs.TransactionReceipt;
 
 
 namespace Lykke.Service.EthereumApi.Services
 {
     [UsedImplicitly]
-    public class BlockchainService : IBlockchainService
+    public class BlockchainService : BlockhainServiceBase, IBlockchainService
     {
         private readonly SemaphoreSlim _gasPriceLock;
         private readonly ILog _log;
         private readonly IReloadingManager<string> _maxGasPriceManager;
         private readonly IReloadingManager<string> _minGasPriceManager;
-        private readonly Web3Parity _web3;
 
         private DateTime _gasPriceExpiration;
         
         
         public BlockchainService(
             ILogFactory logFactory,
-            Settings settings,
-            Web3Parity web3)
+            Settings settings)
+        
+            : base(settings.ParityNodeUrl)
         {
             _gasPriceLock = new SemaphoreSlim(1);
             _log = logFactory.CreateLog(this);
             _maxGasPriceManager = settings.MaxGasPriceManager;
             _minGasPriceManager = settings.MinGasPriceManager;
-            _web3 = web3;
         }
 
 
         public async Task<BigInteger> GetBalanceAsync(
             string address)
         {
-            return (await _web3.Eth.GetBalance.SendRequestAsync(address))
-                .Value;
+            var balance = await SendRequestWithTelemetryAsync<HexBigInteger>
+            (
+                Web3.Eth.GetBalance.BuildRequest(address)
+            );
+            
+            return balance.Value;
         }
 
         public async Task<string> BroadcastTransactionAsync(
             string signedTxData)
         {
             var txHash = GetTransactionHash(signedTxData);
-            var txReceipt = await _web3.Eth.Transactions.GetTransactionReceipt.SendRequestAsync(txHash);
+            var txReceipt = await SendRequestWithTelemetryAsync<TransactionReceipt>
+            (
+                Web3.Eth.Transactions.GetTransactionReceipt.BuildRequest(txHash)
+            );
 
             if (txReceipt == null)
             {
-                await _web3.Eth.Transactions.SendRawTransaction.SendRequestAsync(signedTxData);
+                await SendRequestWithTelemetryAsync
+                (
+                    Web3.Eth.Transactions.SendRawTransaction.BuildRequest(signedTxData)
+                );
                 
                 for (var i = 0; i < 10; i++)
                 {
@@ -105,16 +116,22 @@ namespace Lykke.Service.EthereumApi.Services
         public async Task<bool> IsWalletAsync(
             string address)
         {
-            var code = await _web3.Eth.GetCode.SendRequestAsync(address);
-
+            var code = await SendRequestWithTelemetryAsync<string>
+            (
+                Web3.Eth.GetCode.BuildRequest(address)
+            );
+            
             return code == "0x";
         }
         
         private async Task<bool> CheckIfBroadcastedAsync(
             string txHash)
         {
-            var transaction = await _web3.Eth.Transactions.GetTransactionByHash.SendRequestAsync(txHash);
-
+            var transaction = await SendRequestWithTelemetryAsync<Transaction>
+            (
+                Web3.Eth.Transactions.GetTransactionByHash.BuildRequest(txHash)
+            );
+            
             return transaction != null && transaction.BlockNumber.Value == 0;
         }
         
@@ -130,31 +147,36 @@ namespace Lykke.Service.EthereumApi.Services
                 Value = new HexBigInteger(amount)
             };
             
-            var estimatedGasPrice = (await _web3.Eth.Transactions.EstimateGas.SendRequestAsync(input)).Value;
+            var estimatedGasPrice = await SendRequestWithTelemetryAsync<HexBigInteger>
+            (
+                Web3.Eth.Transactions.EstimateGas.BuildRequest(input)
+            );
+            
             var minGasPrice = BigInteger.Parse(_minGasPriceManager.CurrentValue);
             var maxGasPrice = BigInteger.Parse(_maxGasPriceManager.CurrentValue);
 
-            if (estimatedGasPrice > maxGasPrice)
+            if (estimatedGasPrice.Value > maxGasPrice)
             {
                 return maxGasPrice;
             }
 
-            if (estimatedGasPrice < minGasPrice)
+            if (estimatedGasPrice.Value < minGasPrice)
             {
                 return minGasPrice;
             }
 
-            return estimatedGasPrice;
+            return estimatedGasPrice.Value;
         }
         
         private async Task<BigInteger> GetNextNonceAsync(
             string address)
-        {   
-            var request = new RpcRequest($"{Guid.NewGuid()}", "parity_nextNonce", address);
-            var response = await _web3.Client.SendRequestAsync<string>(request);
-            var result = new HexBigInteger(response);
-
-            return result.Value;
+        {
+            var nextNonce = await SendRequestWithTelemetryAsync<string>
+            (
+                new RpcRequest(null, "parity_nextNonce", address)
+            );
+            
+            return new HexBigInteger(nextNonce).Value;
         }
 
         private async Task UpdateMinAndMaxGasPricesAsync()
@@ -184,12 +206,12 @@ namespace Lykke.Service.EthereumApi.Services
 
                     if (newMaxGasPrice != previousMaxGasPrice)
                     {
-                        _log.Info($"Maximal gas price seto to {newMaxGasPrice}");
+                        _log.Info($"Maximal gas price set to {newMaxGasPrice}");
                     }
                     
                     if (newMinGasPrice != previousMinGasPrice)
                     {
-                        _log.Info($"Maximal gas price seto to {newMinGasPrice}");
+                        _log.Info($"Maximal gas price set to {newMinGasPrice}");
                     }
                 }
                 catch (Exception e)
@@ -216,7 +238,10 @@ namespace Lykke.Service.EthereumApi.Services
         public class Settings
         {
             public IReloadingManager<string> MaxGasPriceManager { get; set; }
+            
             public IReloadingManager<string> MinGasPriceManager { get; set; }
+            
+            public string ParityNodeUrl { get; set; }
         }
     }
 }

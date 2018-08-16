@@ -6,12 +6,12 @@ using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Lykke.Common.Log;
+using Lykke.Service.EthereumCommon.Services;
 using Lykke.Service.EthereumWorker.Core.Domain;
 using Lykke.Service.EthereumWorker.Core.Services;
 using Lykke.Service.EthereumWorker.Services.Models;
 using Nethereum.Hex.HexTypes;
 using Nethereum.JsonRpc.Client;
-using Nethereum.Parity;
 using Nethereum.RPC.Eth.DTOs;
 
 using TransactionReceipt = Lykke.Service.EthereumCommon.Core.Domain.TransactionReceipt;
@@ -20,11 +20,10 @@ using TransactionReceipt = Lykke.Service.EthereumCommon.Core.Domain.TransactionR
 namespace Lykke.Service.EthereumWorker.Services
 {
     [UsedImplicitly]
-    public class BlockchainService : IBlockchainService
+    public class BlockchainService : BlockhainServiceBase, IBlockchainService
     {
         private readonly SemaphoreSlim _bestTrustedBlockLock;
         private readonly int _confirmationLevel;
-        private readonly Web3Parity _web3;
         
         
         private DateTime _bestTrustedBlockExpiration;
@@ -33,12 +32,12 @@ namespace Lykke.Service.EthereumWorker.Services
         
         public BlockchainService(
             ILogFactory logFactory,
-            Settings settings,
-            Web3Parity web3)
+            Settings settings)
+        
+            : base(settings.ParityNodeUrl)
         {
             _bestTrustedBlockLock = new SemaphoreSlim(1);
             _confirmationLevel = settings.ConfirmationLevel;
-            _web3 = web3;
         }
 
 
@@ -49,7 +48,10 @@ namespace Lykke.Service.EthereumWorker.Services
             try
             {
                 var block = new BlockParameter((ulong) blockNumber);
-                var balance = await _web3.Eth.GetBalance.SendRequestAsync(address, block);
+                var balance = await SendRequestWithTelemetryAsync<HexBigInteger>
+                (
+                    Web3.Eth.GetBalance.BuildRequest(address, block)
+                );
 
                 return balance.Value;
             }
@@ -69,9 +71,12 @@ namespace Lykke.Service.EthereumWorker.Services
                 {
                     if (_bestTrustedBlockExpiration <= DateTime.UtcNow)
                     {
-                        var bestBlockNumber = (await _web3.Eth.Blocks.GetBlockNumber.SendRequestAsync()).Value;
+                        var bestBlockNumber = await SendRequestWithTelemetryAsync<HexBigInteger>
+                        (
+                            Web3.Eth.Blocks.GetBlockNumber.BuildRequest()
+                        );
                         
-                        _bestTrustedBlockNumber =  bestBlockNumber - _confirmationLevel;
+                        _bestTrustedBlockNumber =  bestBlockNumber.Value - _confirmationLevel;
                         _bestTrustedBlockExpiration = DateTime.UtcNow.AddSeconds(30);
                     }
                 }
@@ -116,8 +121,14 @@ namespace Lykke.Service.EthereumWorker.Services
         public async Task<IEnumerable<TransactionReceipt>> GetTransactionReceiptsAsync(
             BigInteger blockNumber)
         {
-            var block = await _web3.Eth.Blocks.GetBlockWithTransactionsByNumber.SendRequestAsync(new HexBigInteger(blockNumber));
-
+            var block = await SendRequestWithTelemetryAsync<BlockWithTransactions>
+            (
+                Web3.Eth.Blocks.GetBlockWithTransactionsByNumber.BuildRequest
+                (
+                    new HexBigInteger(blockNumber)
+                )
+            );
+            
             if (block != null)
             {
                 return block.Transactions.Where(x => x.Value.Value != 0).Select(x => new TransactionReceipt
@@ -136,12 +147,14 @@ namespace Lykke.Service.EthereumWorker.Services
         
         private async Task<TransactionTraceResponse[]> GetTransactionTracesAsync(string txHash)
         {
-            var request = new RpcRequest($"{Guid.NewGuid()}", "trace_transaction", txHash);
-            var response = await _web3.Client.SendRequestAsync<IEnumerable<TransactionTraceResponse>>(request);
+            var transactionTraces = await SendRequestWithTelemetryAsync<IEnumerable<TransactionTraceResponse>>
+            (
+                new RpcRequest(null, "trace_transaction", txHash)
+            );
 
-            if (response != null)
+            if (transactionTraces != null)
             {
-                return response.ToArray();
+                return transactionTraces.ToArray();
             }
             else
             {
@@ -149,10 +162,11 @@ namespace Lykke.Service.EthereumWorker.Services
             }
         }
         
-
         public class Settings
         {
             public int ConfirmationLevel { get; set; }
+            
+            public string ParityNodeUrl { get; set; }
         }
     }
 }
