@@ -131,8 +131,8 @@ namespace Lykke.Service.EthereumApi.Services
             (
                 Web3.Eth.Transactions.GetTransactionByHash.BuildRequest(txHash)
             );
-            
-            return transaction != null && transaction.BlockNumber.Value == 0;
+
+            return transaction != null;
         }
         
         public async Task<BigInteger> EstimateGasPriceAsync(
