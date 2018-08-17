@@ -50,7 +50,7 @@ namespace Lykke.Service.EthereumApi.Services
         {
             var balance = await SendRequestWithTelemetryAsync<HexBigInteger>
             (
-                Web3.Eth.GetBalance.BuildRequest(address)
+                Web3.Eth.GetBalance.BuildRequest(address, BlockParameter.CreateLatest())
             );
             
             return balance.Value;
