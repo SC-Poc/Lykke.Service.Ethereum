@@ -42,6 +42,8 @@ namespace Lykke.Service.EthereumCommon.AzureRepositories
         public async Task AddAsync(
             Transaction transaction)
         {
+            var (partitionKey, rowKey) = GetTransactionKeys(transaction.TransactionId);
+            
             var transactionEntity = new TransactionEntity
             {
                 Amount = transaction.Amount,
@@ -60,7 +62,10 @@ namespace Lykke.Service.EthereumCommon.AzureRepositories
                 SignedData = transaction.SignedData,
                 State = transaction.State,
                 To = transaction.To,
-                TransactionId = transaction.TransactionId
+                TransactionId = transaction.TransactionId,
+                
+                PartitionKey = partitionKey,
+                RowKey = rowKey
             };
 
             await _transactions.InsertAsync(transactionEntity);
