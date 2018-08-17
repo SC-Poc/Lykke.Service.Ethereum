@@ -33,7 +33,7 @@ namespace Lykke.Service.EthereumApi.Validation
         {
             ruleBuilder
                 .Must(x => Address.ValidateFormatAndChecksum(x, true, true))
-                .WithMessage(x => $"Specified address [{x}] is not valid.");
+                .WithMessage(x => $"Specified address is not valid.");
         }
 
         public static void AssetMustBeSupported<T>(
@@ -41,7 +41,7 @@ namespace Lykke.Service.EthereumApi.Validation
         {
             ruleBuilder
                 .Must(assetId => assetId == Constants.AssetId)
-                .WithMessage(x => $"Specified asset [{x}] is not supported.");
+                .WithMessage(x => $"Specified asset is not supported.");
         }
 
         public static void MustBeHexString<T>(

@@ -14,7 +14,7 @@ namespace Lykke.Service.EthereumApi.Services
     {
         private readonly ILog _log;
         private readonly IObservableBalanceRepository _observableAccountStateRepository;
-
+        
         
         public BalanceService(
             ILogFactory logFactory,

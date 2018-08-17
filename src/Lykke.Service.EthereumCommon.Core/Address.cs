@@ -1,8 +1,10 @@
 ﻿using System;
+using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using JetBrains.Annotations;
 using Lykke.Service.EthereumCommon.Core.Crypto;
+using Org.BouncyCastle.Asn1.IsisMtt.Ocsp;
 
 namespace Lykke.Service.EthereumCommon.Core
 {
@@ -57,12 +59,12 @@ namespace Lykke.Service.EthereumCommon.Core
                 return false;
             }
 
-            if (allowAllLowerCase && addressString.ToLowerInvariant() == addressString)
+            if (allowAllLowerCase && addressString.Skip(2).Where(char.IsLetter).All(char.IsLower))
             {
                 return true;
             }
             
-            if (allowAllUpperCase && addressString.ToUpperInvariant() == addressString)
+            if (allowAllUpperCase && addressString.Skip(2).Where(char.IsLetter).All(char.IsUpper))
             {
                 return true;
             }
@@ -73,9 +75,9 @@ namespace Lykke.Service.EthereumCommon.Core
         private static bool ValidateChecksum(
             string addressString)
         {
-            addressString = addressString.Remove(0, 2).ToLowerInvariant();
+            addressString = addressString.Remove(0, 2);
             
-            var addressBytes = Encoding.UTF8.GetBytes(addressString);
+            var addressBytes = Encoding.UTF8.GetBytes(addressString.ToLowerInvariant());
             var caseMapBytes = Keccak256.Sum(addressBytes);
         
             for (var i = 0; i < 40; i++)
