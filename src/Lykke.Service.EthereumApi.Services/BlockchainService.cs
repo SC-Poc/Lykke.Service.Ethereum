@@ -7,6 +7,7 @@ using JetBrains.Annotations;
 using Lykke.Common.Log;
 using Lykke.Service.EthereumApi.Core.Services;
 using Lykke.Service.EthereumCommon.Core;
+using Lykke.Service.EthereumCommon.Core.Crypto;
 using Lykke.Service.EthereumCommon.Core.Domain;
 using Lykke.Service.EthereumCommon.Services;
 using Lykke.SettingsReader;
@@ -15,6 +16,7 @@ using Nethereum.Hex.HexConvertors.Extensions;
 using Nethereum.Hex.HexTypes;
 using Nethereum.JsonRpc.Client;
 using Nethereum.RPC.Eth.DTOs;
+using Nethereum.Signer;
 using Transaction = Nethereum.RPC.Eth.DTOs.Transaction;
 using TransactionReceipt = Nethereum.RPC.Eth.DTOs.TransactionReceipt;
 
@@ -229,9 +231,17 @@ namespace Lykke.Service.EthereumApi.Services
             string signedTxData)
         {
             var txDataBytes = signedTxData.HexToByteArray();
-            
-            return (new Nethereum.Signer.Transaction(txDataBytes)).RawHash
+
+            return Keccak256
+                .Sum(txDataBytes)
                 .ToHex(true);
+            
+            //var rlpSigner = new RLPSigner(txDataBytes, 6);
+            //
+            //var encoded rlpSigner.GetRLPEncoded()
+            //
+            //return (new Nethereum.Signer.Transaction(txDataBytes))
+            //    .ToHex(true);
         }
 
 

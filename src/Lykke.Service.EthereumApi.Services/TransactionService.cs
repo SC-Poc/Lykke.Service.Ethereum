@@ -129,13 +129,6 @@ namespace Lykke.Service.EthereumApi.Services
                     return BroadcastTransactionResult.AmountIsTooSmall;
                 }
 
-                var balance = await _blockchainService.GetBalanceAsync(transaction.From);
-
-                if (balance < transaction.Amount)
-                {
-                    return BroadcastTransactionResult.BalanceIsNotEnough;
-                }
-                
                 switch (transaction.State)
                 {
                     case TransactionState.Built:
