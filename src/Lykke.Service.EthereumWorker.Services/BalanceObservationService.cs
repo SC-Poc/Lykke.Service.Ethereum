@@ -5,6 +5,7 @@ using JetBrains.Annotations;
 using Lykke.Common.Chaos;
 using Lykke.Common.Log;
 using Lykke.Service.EthereumCommon.Core;
+using Lykke.Service.EthereumCommon.Core.Domain;
 using Lykke.Service.EthereumCommon.Core.Repositories;
 using Lykke.Service.EthereumWorker.Core.Domain;
 using Lykke.Service.EthereumWorker.Core.Repositories;
@@ -38,7 +39,7 @@ namespace Lykke.Service.EthereumWorker.Services
         }
 
 
-        public async Task CheckAndUpdateBalanceAsync(
+        public async Task<bool> CheckAndUpdateBalanceAsync(
             string address)
         {
             try
@@ -63,10 +64,14 @@ namespace Lykke.Service.EthereumWorker.Services
                 {
                     _log.Debug($"Account [{address}] balance is not observable or has already been updated.");
                 }
+
+                return true;
             }
             catch (Exception e)
             {
                 _log.Error(e, $"Failed to check balance of account [{address}].");
+
+                return false;
             }
         }
 

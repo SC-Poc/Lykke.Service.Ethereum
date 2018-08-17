@@ -47,6 +47,16 @@ namespace Lykke.Service.EthereumApi.Modules
         {
             var connectionString = _appSettings.ConnectionString(x => x.ApiService.Db.DataConnString);
             
+            // BalanceObservationTaskRepository
+            
+            builder
+                .Register(x => BalanceObservationTaskRepository.Create
+                (
+                    connectionString: connectionString
+                ))
+                .As<IBalanceObservationTaskRepository>()
+                .SingleInstance();
+            
             // ObservableBalanceRepository
 
             builder

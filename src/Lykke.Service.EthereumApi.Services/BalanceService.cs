@@ -12,14 +12,17 @@ namespace Lykke.Service.EthereumApi.Services
     [UsedImplicitly]
     public class BalanceService : IBalanceService
     {
+        private readonly IBalanceObservationTaskRepository _balanceObservationTaskRepository;
         private readonly ILog _log;
         private readonly IObservableBalanceRepository _observableAccountStateRepository;
         
         
         public BalanceService(
+            IBalanceObservationTaskRepository balanceObservationTaskRepository,
             ILogFactory logFactory,
             IObservableBalanceRepository observableAccountStateRepository)
         {
+            _balanceObservationTaskRepository = balanceObservationTaskRepository;
             _log = logFactory.CreateLog(this);
             _observableAccountStateRepository = observableAccountStateRepository;
         }
@@ -35,6 +38,11 @@ namespace Lykke.Service.EthereumApi.Services
             {
                 _log.Info($"Balance observation for wallet [{address}] started.");
             }
+            
+            await _balanceObservationTaskRepository.EnqueueAsync(new BalanceObservationTask
+            {
+                Address = address
+            });
 
             return observationBegan;
         }

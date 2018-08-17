@@ -1,6 +1,6 @@
 ﻿using MessagePack;
 
-namespace Lykke.Service.EthereumWorker.Core.Domain
+namespace Lykke.Service.EthereumCommon.Core.Domain
 {
     [MessagePackObject]
     public class BalanceObservationTask

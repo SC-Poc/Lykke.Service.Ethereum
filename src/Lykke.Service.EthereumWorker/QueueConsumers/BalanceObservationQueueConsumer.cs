@@ -2,6 +2,7 @@
 using Common.Log;
 using JetBrains.Annotations;
 using Lykke.Common.Log;
+using Lykke.Service.EthereumCommon.Core.Domain;
 using Lykke.Service.EthereumWorker.Core.Domain;
 using Lykke.Service.EthereumWorker.Core.QueueConsumer;
 using Lykke.Service.EthereumWorker.Core.Services;
@@ -37,11 +38,14 @@ namespace Lykke.Service.EthereumWorker.QueueConsumers
         protected override async Task ProcessTaskAsync(
             (BalanceObservationTask Task, string CompletionToken) taskAndCompletionToken)
         {
-            await _balanceObservationService
+            var balanceChecked = await _balanceObservationService
                 .CheckAndUpdateBalanceAsync(taskAndCompletionToken.Task.Address);
 
-            await _balanceObservationService
-                .CompleteObservationTaskAsync(taskAndCompletionToken.CompletionToken);
+            if (balanceChecked)
+            {
+                await _balanceObservationService
+                    .CompleteObservationTaskAsync(taskAndCompletionToken.CompletionToken);
+            }
         }
 
         public override void Start()
