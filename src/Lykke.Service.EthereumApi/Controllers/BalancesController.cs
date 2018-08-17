@@ -70,7 +70,7 @@ namespace Lykke.Service.EthereumApi.Controllers
                 Continuation = continuation,
                 Items = balances.Select(x => new WalletBalanceContract
                 {
-                    Address = x.Address,
+                    Address = Address.AddChecksum(x.Address),
                     AssetId = Constants.AssetId,
                     Balance = x.Amount.ToString(),
                     Block = (long) x.BlockNumber
