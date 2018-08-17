@@ -31,7 +31,7 @@ namespace Lykke.Service.EthereumCommon.AzureRepositories
             var transactions = AzureTableStorage<TransactionEntity>.Create
             (
                 connectionString,
-                "TransactionEntities",
+                "Transactions",
                 logFactory
             );
             

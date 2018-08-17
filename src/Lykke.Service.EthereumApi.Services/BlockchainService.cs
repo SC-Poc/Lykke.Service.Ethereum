@@ -173,9 +173,9 @@ namespace Lykke.Service.EthereumApi.Services
         {
             var nextNonce = await SendRequestWithTelemetryAsync<string>
             (
-                new RpcRequest(null, "parity_nextNonce", address)
+                new RpcRequest(Guid.NewGuid(), "parity_nextNonce", address)
             );
-            
+
             return new HexBigInteger(nextNonce).Value;
         }
 

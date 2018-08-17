@@ -149,7 +149,7 @@ namespace Lykke.Service.EthereumWorker.Services
         {
             var transactionTraces = await SendRequestWithTelemetryAsync<IEnumerable<TransactionTraceResponse>>
             (
-                new RpcRequest(null, "trace_transaction", txHash)
+                new RpcRequest(Guid.NewGuid(), "trace_transaction", txHash)
             );
 
             if (transactionTraces != null)
