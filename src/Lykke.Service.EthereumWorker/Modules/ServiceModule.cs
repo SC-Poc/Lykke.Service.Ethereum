@@ -12,7 +12,6 @@ using Lykke.Service.EthereumWorker.QueueConsumers;
 using Lykke.Service.EthereumWorker.Services;
 using Lykke.Service.EthereumWorker.Settings;
 using Lykke.SettingsReader;
-using Nethereum.Parity;
 
 
 namespace Lykke.Service.EthereumWorker.Modules
@@ -115,8 +114,7 @@ namespace Lykke.Service.EthereumWorker.Modules
             builder
                 .Register(x => BlockchainIndexationStateRepository.Create
                 (
-                    connectionString: connectionString,
-                    logFactory: x.Resolve<ILogFactory>()
+                    connectionString: connectionString
                 ))
                 .As<IBlockchainIndexationStateRepository>()
                 .SingleInstance();

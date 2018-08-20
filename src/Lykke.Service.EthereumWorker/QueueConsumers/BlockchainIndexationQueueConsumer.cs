@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Linq;
+﻿using System.Linq;
 using System.Numerics;
 using System.Threading.Tasks;
 using Common.Log;
@@ -7,6 +6,7 @@ using JetBrains.Annotations;
 using Lykke.Common.Log;
 using Lykke.Service.EthereumWorker.Core.QueueConsumer;
 using Lykke.Service.EthereumWorker.Core.Services;
+
 
 namespace Lykke.Service.EthereumWorker.QueueConsumers
 {

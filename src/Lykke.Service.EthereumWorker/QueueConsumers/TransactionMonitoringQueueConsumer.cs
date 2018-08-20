@@ -10,7 +10,7 @@ using Lykke.Service.EthereumWorker.Core.Services;
 namespace Lykke.Service.EthereumWorker.QueueConsumers
 {
     [UsedImplicitly]
-    public class TransactionMonitoringQueueConsumer : QueueConsumer<(TransactionMonitoringTask, string)>
+    public class TransactionMonitoringQueueConsumer : QueueConsumer<(TransactionMonitoringTask Task, string CompletionToken)>
     {
         private readonly ILog _log;
         private readonly ITransactionMonitoringService _transactionMonitoringService;
@@ -36,14 +36,14 @@ namespace Lykke.Service.EthereumWorker.QueueConsumers
         }
 
         protected override async Task ProcessTaskAsync(
-            (TransactionMonitoringTask, string) taskAndCompletionToken)
+            (TransactionMonitoringTask Task, string CompletionToken) taskAndCompletionToken)
         {
-            var task = taskAndCompletionToken.Item1;
-            var completionToken = taskAndCompletionToken.Item2;
-
-            if (await _transactionMonitoringService.CheckAndUpdateStateAsync(task.TransactionId))
+            var transactionChecked = await _transactionMonitoringService
+                .CheckAndUpdateStateAsync(taskAndCompletionToken.Task.TransactionId);
+            
+            if (transactionChecked)
             {
-                await _transactionMonitoringService.CompleteMonitoringTaskAsync(completionToken);
+                await _transactionMonitoringService.CompleteMonitoringTaskAsync(taskAndCompletionToken.CompletionToken);
             }
         }
         

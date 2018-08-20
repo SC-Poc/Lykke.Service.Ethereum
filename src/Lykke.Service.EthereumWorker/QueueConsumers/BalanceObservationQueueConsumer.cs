@@ -3,7 +3,6 @@ using Common.Log;
 using JetBrains.Annotations;
 using Lykke.Common.Log;
 using Lykke.Service.EthereumCommon.Core.Domain;
-using Lykke.Service.EthereumWorker.Core.Domain;
 using Lykke.Service.EthereumWorker.Core.QueueConsumer;
 using Lykke.Service.EthereumWorker.Core.Services;
 

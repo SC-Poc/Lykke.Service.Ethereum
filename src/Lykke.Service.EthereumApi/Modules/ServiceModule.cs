@@ -9,7 +9,6 @@ using Lykke.Service.EthereumApi.Settings;
 using Lykke.Service.EthereumCommon.AzureRepositories;
 using Lykke.Service.EthereumCommon.Core.Repositories;
 using Lykke.SettingsReader;
-using Nethereum.Parity;
 
 
 namespace Lykke.Service.EthereumApi.Modules

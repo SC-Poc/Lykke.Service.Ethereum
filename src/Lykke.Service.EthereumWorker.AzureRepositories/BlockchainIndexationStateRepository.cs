@@ -3,8 +3,6 @@ using System.IO;
 using System.Threading.Tasks;
 using AzureStorage;
 using AzureStorage.Blob;
-using Common.Log;
-using Lykke.Common.Log;
 using Lykke.Service.EthereumCommon.AzureRepositories;
 using Lykke.Service.EthereumWorker.AzureRepositories.AzureBlockLock;
 using Lykke.Service.EthereumWorker.Core.DistributedLock;
@@ -25,22 +23,18 @@ namespace Lykke.Service.EthereumWorker.AzureRepositories
 
         private readonly IBlobStorage _blobStorage;
         private readonly IDistributedLock _lock;
-        private readonly ILog _log;
 
 
         private BlockchainIndexationStateRepository(
             IBlobStorage blobStorage,
-            IDistributedLock @lock,
-            ILogFactory logFactory)
+            IDistributedLock @lock)
         {
             _blobStorage = blobStorage;
             _lock = @lock;
-            _log = logFactory.CreateLog(this);
         }
 
         public static BlockchainIndexationStateRepository Create(
-            IReloadingManager<string> connectionString,
-            ILogFactory logFactory)
+            IReloadingManager<string> connectionString)
         {
             return new BlockchainIndexationStateRepository
             (
@@ -51,8 +45,7 @@ namespace Lykke.Service.EthereumWorker.AzureRepositories
                     container: Container,
                     key: LockKey,
                     lockDuration: 60
-                ),
-                logFactory
+                )
             );
         }
         

@@ -7,8 +7,6 @@ using Lykke.Common.Log;
 using Lykke.Service.EthereumCommon.Core;
 using Lykke.Service.EthereumCommon.Core.Domain;
 using Lykke.Service.EthereumCommon.Core.Repositories;
-using Lykke.Service.EthereumWorker.Core.Domain;
-using Lykke.Service.EthereumWorker.Core.Repositories;
 using Lykke.Service.EthereumWorker.Core.Services;
 
 

@@ -10,6 +10,7 @@ namespace Lykke.Service.EthereumSignApi.Modules
     [UsedImplicitly]
     public class ServiceModule : Module
     {
+        // ReSharper disable once NotAccessedField.Local : Field reserved for future use
         private readonly IReloadingManager<AppSettings> _appSettings;
 
         

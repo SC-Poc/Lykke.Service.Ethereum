@@ -1,5 +1,5 @@
-﻿using System;
-using Microsoft.ApplicationInsights;
+﻿using Microsoft.ApplicationInsights;
+
 
 namespace Lykke.Service.EthereumCommon.Core.Telemetry
 {

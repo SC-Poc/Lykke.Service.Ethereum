@@ -14,5 +14,9 @@ namespace Lykke.Service.EthereumCommon.Core.Telemetry
         void SetProperty(
             string name,
             string value);
+        
+        void SetProperty(
+            string name,
+            object value);
     }
 }

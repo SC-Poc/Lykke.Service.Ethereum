@@ -1,6 +1,6 @@
-﻿using System.Collections.Generic;
-using System.Numerics;
+﻿using System.Numerics;
 using System.Threading.Tasks;
+
 
 namespace Lykke.Service.EthereumWorker.Core.Services
 {

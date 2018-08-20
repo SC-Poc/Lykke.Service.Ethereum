@@ -9,7 +9,6 @@ using Lykke.Common.Log;
 using Lykke.Service.EthereumCommon.Services;
 using Lykke.Service.EthereumWorker.Core.Domain;
 using Lykke.Service.EthereumWorker.Core.Services;
-using Lykke.Service.EthereumWorker.Services.Models;
 using Nethereum.Hex.HexTypes;
 using Nethereum.JsonRpc.Client;
 using Nethereum.RPC.Eth.DTOs;
@@ -76,7 +75,7 @@ namespace Lykke.Service.EthereumWorker.Services
                             Web3.Eth.Blocks.GetBlockNumber.BuildRequest()
                         );
                         
-                        _bestTrustedBlockNumber =  bestBlockNumber.Value - _confirmationLevel;
+                        _bestTrustedBlockNumber = bestBlockNumber.Value - _confirmationLevel;
                         _bestTrustedBlockExpiration = DateTime.UtcNow.AddSeconds(30);
                     }
                 }
@@ -92,20 +91,24 @@ namespace Lykke.Service.EthereumWorker.Services
         public async Task<TransactionResult> GetTransactionResultAsync(
             string hash)
         {
-            var traces = await GetTransactionTracesAsync(hash);
+            #if ETH
+            
+            var receipt = await SendRequestWithTelemetryAsync<Nethereum.RPC.Eth.DTOs.TransactionReceipt>
+            (
+                Web3.Eth.Transactions.GetTransactionReceipt.BuildRequest(hash)
+            );
 
-            if (traces.Any())
+            if (receipt != null)
             {
-                var error = string.Join(";", traces
-                    .Where(x => !string.IsNullOrEmpty(x.Error))
-                    .Select(x => x.Error));
+                var isFailed = receipt.Status.Value == 0;
+                var error = isFailed ? "Transaction failed." : null;
                 
                 return new TransactionResult
                 {
-                    BlockNumber = traces.First().BlockNumber,
+                    BlockNumber = receipt.BlockNumber,
                     Error = error,
                     IsCompleted = true,
-                    IsFailed = !string.IsNullOrEmpty(error)
+                    IsFailed = isFailed
                 };
             }
             else
@@ -116,6 +119,12 @@ namespace Lykke.Service.EthereumWorker.Services
                     IsFailed = false
                 };
             }
+            
+            #elif ETC
+
+            throw new NotImplementedException();
+    
+            #endif
         }
 
         public async Task<IEnumerable<TransactionReceipt>> GetTransactionReceiptsAsync(
@@ -141,26 +150,28 @@ namespace Lykke.Service.EthereumWorker.Services
                     To = x.To
                 });
             }
-
-            return Enumerable.Empty<TransactionReceipt>();
-        }
-        
-        private async Task<TransactionTraceResponse[]> GetTransactionTracesAsync(string txHash)
-        {
-            var transactionTraces = await SendRequestWithTelemetryAsync<IEnumerable<TransactionTraceResponse>>
-            (
-                new RpcRequest(Guid.NewGuid(), "trace_transaction", txHash)
-            );
-
-            if (transactionTraces != null)
-            {
-                return transactionTraces.ToArray();
-            }
             else
             {
-                return Array.Empty<TransactionTraceResponse>();
+                return Enumerable.Empty<TransactionReceipt>();
             }
         }
+        
+        //private async Task<TransactionTraceResponse[]> GetTransactionTracesAsync(string txHash)
+        //{
+        //    var transactionTraces = await SendRequestWithTelemetryAsync<IEnumerable<TransactionTraceResponse>>
+        //    (
+        //        new RpcRequest(Guid.NewGuid(), "trace_transaction", txHash)
+        //    );
+        //
+        //    if (transactionTraces != null)
+        //    {
+        //        return transactionTraces.ToArray();
+        //    }
+        //    else
+        //    {
+        //        return Array.Empty<TransactionTraceResponse>();
+        //    }
+        //}
         
         public class Settings
         {

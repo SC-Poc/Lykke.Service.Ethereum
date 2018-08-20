@@ -35,12 +35,23 @@ namespace Lykke.Service.EthereumCommon.Core.Telemetry
 
         public void SetMetric(string name, double value)
         {
-            _eventTelemetry.Metrics[name] = value;
+            if (!string.IsNullOrEmpty(name))
+            {
+                _eventTelemetry.Metrics[name] = value;
+            }
         }
 
         public void SetProperty(string name, string value)
         {
-            _eventTelemetry.Properties[name] = value;
+            if (!string.IsNullOrEmpty(name))
+            {
+                _eventTelemetry.Properties[name] = value;
+            }
+        }
+        
+        public void SetProperty(string name, object value)
+        {
+            SetProperty(name, value?.ToString());
         }
     }
 }

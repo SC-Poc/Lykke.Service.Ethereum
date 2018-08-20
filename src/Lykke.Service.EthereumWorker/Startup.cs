@@ -2,10 +2,10 @@
 using JetBrains.Annotations;
 using Lykke.Sdk;
 using Lykke.Service.EthereumCommon;
-using Lykke.Service.EthereumCommon.Core;
 using Lykke.Service.EthereumWorker.Settings;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
+
 
 namespace Lykke.Service.EthereumWorker
 {

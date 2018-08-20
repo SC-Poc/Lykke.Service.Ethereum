@@ -1,6 +1,6 @@
 ﻿using System.Threading.Tasks;
 using Lykke.Service.EthereumCommon.Core.Domain;
-using Lykke.Service.EthereumWorker.Core.Domain;
+
 
 namespace Lykke.Service.EthereumWorker.Core.Services
 {
