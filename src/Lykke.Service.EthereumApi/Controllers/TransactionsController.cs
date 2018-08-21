@@ -148,7 +148,10 @@ namespace Lykke.Service.EthereumApi.Controllers
 
             if (txState != null)
             {
-                var response = new BroadcastedSingleTransactionResponse();
+                var response = new BroadcastedSingleTransactionResponse
+                {
+                    OperationId = txState.TransactionId
+                };
                 
                 switch (txState.State)
                 {
