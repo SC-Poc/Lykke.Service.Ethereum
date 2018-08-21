@@ -11,7 +11,11 @@ namespace Lykke.Service.EthereumCommon.AzureRepositories.Entities
     public class TransactionEntity : AzureTableEntity
     {
         private BigInteger _amount;
+        private BigInteger? _blockNumber;
+        private DateTime? _broadcastedOn;
         private DateTime _builtOn;
+        private DateTime? _completedOn;
+        private DateTime? _deletedOn;
         private BigInteger _gasAmount;
         private BigInteger _gasPrice;
         private bool _includeFee;
@@ -34,9 +38,35 @@ namespace Lykke.Service.EthereumCommon.AzureRepositories.Entities
             }
         }
 
-        public BigInteger? BlockNumber { get; set; }
+        public BigInteger? BlockNumber
+        {
+            get
+                => _blockNumber;
+            set
+            {
+                if (_blockNumber != value)
+                {
+                    _blockNumber = value;
+                    
+                    MarkValueTypePropertyAsDirty(nameof(BlockNumber));
+                }
+            }
+        }
 
-        public DateTime? BroadcastedOn { get; set; }
+        public DateTime? BroadcastedOn
+        {
+            get
+                => _broadcastedOn;
+            set
+            {
+                if (_broadcastedOn != null)
+                {
+                    _broadcastedOn = value;
+                    
+                    MarkValueTypePropertyAsDirty(nameof(BroadcastedOn));
+                }
+            }
+        }
 
         public DateTime BuiltOn
         {
@@ -53,11 +83,37 @@ namespace Lykke.Service.EthereumCommon.AzureRepositories.Entities
             }
         }
 
-        public DateTime? CompletedOn { get; set; }
+        public DateTime? CompletedOn
+        {
+            get
+                => _completedOn;
+            set
+            {
+                if (_completedOn != value)
+                {
+                    _completedOn = value;
+                    
+                    MarkValueTypePropertyAsDirty(nameof(CompletedOn));
+                }
+            }
+        }
 
         public string Data { get; set; }
 
-        public DateTime? DeletedOn { get; set; }
+        public DateTime? DeletedOn
+        {
+            get
+                => _deletedOn;
+            set
+            {
+                if (_deletedOn != value)
+                {
+                    _deletedOn = value;
+                    
+                    MarkValueTypePropertyAsDirty(nameof(DeletedOn));
+                }
+            }
+        }
 
         public string Error { get; set; }
 
