@@ -98,14 +98,14 @@ namespace Lykke.Service.EthereumWorker.Services
                 Web3.Eth.Transactions.GetTransactionReceipt.BuildRequest(hash)
             );
 
-            if (receipt != null)
+            if (receipt != null && receipt.BlockNumber.Value != 0)
             {
                 var isFailed = receipt.Status.Value == 0;
                 var error = isFailed ? "Transaction failed." : null;
                 
                 return new TransactionResult
                 {
-                    BlockNumber = receipt.BlockNumber,
+                    BlockNumber = receipt.BlockNumber.Value,
                     Error = error,
                     IsCompleted = true,
                     IsFailed = isFailed
