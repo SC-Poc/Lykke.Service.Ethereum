@@ -120,7 +120,7 @@ namespace Lykke.Service.EthereumApi.Services
         {
             var code = await SendRequestWithTelemetryAsync<string>
             (
-                Web3.Eth.GetCode.BuildRequest(address)
+                Web3.Eth.GetCode.BuildRequest(Guid.NewGuid(), address)
             );
             
             return code == "0x";
