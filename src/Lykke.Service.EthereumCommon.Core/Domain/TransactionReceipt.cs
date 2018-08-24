@@ -12,6 +12,8 @@ namespace Lykke.Service.EthereumCommon.Core.Domain
         
         public string Hash { get; set; }
         
+        public BigInteger Index { get; set; }
+        
         public BigInteger Timestamp { get; set; }
         
         public string To { get; set; }

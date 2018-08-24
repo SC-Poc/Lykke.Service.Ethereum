@@ -117,7 +117,8 @@ namespace Lykke.Service.EthereumCommon.AzureRepositories
                     blockNumber: firstAddressReceipt.BlockNumber,
                     indexAddress: indexAddress,
                     nonIndexAddress: nonIndexAddress,
-                    hash: firstAddressReceipt.Hash
+                    hash: firstAddressReceipt.Hash,
+                    index: firstAddressReceipt.Index
                 );
                 
                 return JsonConvert.SerializeObject(new TableContinuationToken
@@ -141,9 +142,10 @@ namespace Lykke.Service.EthereumCommon.AzureRepositories
                 Amount = receipt.Amount,
                 BlockNumber = receipt.BlockNumber,
                 From = receipt.From,
+                Hash = receipt.Hash,
+                Index = receipt.Index,
                 TransactionTimestamp = receipt.Timestamp,
                 To = receipt.To,
-                Hash = receipt.Hash,
                 
                 PartitionKey = receiptEntityKeys.PartitionKey,
                 RowKey = receiptEntityKeys.RowKey
@@ -268,7 +270,7 @@ namespace Lykke.Service.EthereumCommon.AzureRepositories
         
         #region Key Builders
 
-        private static string FormatBlockNumberForKey(
+        private static string FormatNumberForKey(
             BigInteger value)
         {
             return $"{value:00000000000000000000}";
@@ -277,7 +279,7 @@ namespace Lykke.Service.EthereumCommon.AzureRepositories
         private static (string PartitionKey, string RowKey) GetReceiptKeys(
             TransactionReceipt receipt)
         {
-            return (GetReceiptPartitionKey(receipt.Hash), receipt.Hash);
+            return (GetReceiptPartitionKey(receipt.Hash), $"{receipt.Hash}-{FormatNumberForKey(receipt.Index)}");
         }
         
         private static string GetReceiptPartitionKey(
@@ -289,13 +291,13 @@ namespace Lykke.Service.EthereumCommon.AzureRepositories
         private static (string PartitionKey, string RowKey) GetByBlockIndexKeys(
             TransactionReceipt receipt)
         {
-            return (GetByBlockIndexPartitionKey(receipt.BlockNumber), receipt.Hash);
+            return (GetByBlockIndexPartitionKey(receipt.BlockNumber), $"{receipt.Hash}-{FormatNumberForKey(receipt.Index)}");
         }
         
         private static string GetByBlockIndexPartitionKey(
             BigInteger blockNumber)
         {
-            return FormatBlockNumberForKey(blockNumber);
+            return FormatNumberForKey(blockNumber);
         }
 
         private static (string PartitionKey, string RowKey) GetByFromIndexKeys(
@@ -306,7 +308,8 @@ namespace Lykke.Service.EthereumCommon.AzureRepositories
                 blockNumber: receipt.BlockNumber,
                 indexAddress: receipt.From,
                 nonIndexAddress: receipt.To,
-                hash: receipt.Hash
+                hash: receipt.Hash,
+                index: receipt.Index
             );
         }
         
@@ -318,7 +321,8 @@ namespace Lykke.Service.EthereumCommon.AzureRepositories
                 blockNumber: receipt.BlockNumber,
                 indexAddress: receipt.From,
                 nonIndexAddress: receipt.To,
-                hash: receipt.Hash
+                hash: receipt.Hash,
+                index: receipt.Index
             );
         }
         
@@ -330,7 +334,8 @@ namespace Lykke.Service.EthereumCommon.AzureRepositories
                 blockNumber: receipt.BlockNumber,
                 indexAddress: receipt.To,
                 nonIndexAddress: receipt.From,
-                hash: receipt.Hash
+                hash: receipt.Hash,
+                index: receipt.Index
             );
         }
         
@@ -342,7 +347,8 @@ namespace Lykke.Service.EthereumCommon.AzureRepositories
                 blockNumber: receipt.BlockNumber,
                 indexAddress: receipt.To,
                 nonIndexAddress: receipt.From,
-                hash: receipt.Hash
+                hash: receipt.Hash,
+                index: receipt.Index
             );
         }
         
@@ -350,12 +356,13 @@ namespace Lykke.Service.EthereumCommon.AzureRepositories
             BigInteger blockNumber,
             string indexAddress,
             string nonIndexAddress,
-            string hash)
+            string hash,
+            BigInteger index)
         {
             return 
             (
                 GetAddressIndexPartitionKey(indexAddress),
-                $"{FormatBlockNumberForKey(blockNumber)}-{nonIndexAddress ?? "null"}-{hash}"
+                $"{FormatNumberForKey(blockNumber)}-{nonIndexAddress ?? "null"}-{hash}-{FormatNumberForKey(index)}"
             );
         }
 

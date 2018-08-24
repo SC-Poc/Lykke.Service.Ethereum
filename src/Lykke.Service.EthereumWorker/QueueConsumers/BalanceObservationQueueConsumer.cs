@@ -38,7 +38,11 @@ namespace Lykke.Service.EthereumWorker.QueueConsumers
             (BalanceObservationTask Task, string CompletionToken) taskAndCompletionToken)
         {
             var balanceChecked = await _balanceObservationService
-                .CheckAndUpdateBalanceAsync(taskAndCompletionToken.Task.Address);
+                .CheckAndUpdateBalanceAsync
+                (
+                    taskAndCompletionToken.Task.Address,
+                    taskAndCompletionToken.Task.BlockNumber
+                );
 
             if (balanceChecked)
             {

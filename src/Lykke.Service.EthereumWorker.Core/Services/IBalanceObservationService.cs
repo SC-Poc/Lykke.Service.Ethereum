@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System.Numerics;
+using System.Threading.Tasks;
 using Lykke.Service.EthereumCommon.Core.Domain;
 
 
@@ -9,7 +10,8 @@ namespace Lykke.Service.EthereumWorker.Core.Services
         Task<(BalanceObservationTask Task, string CompletionToken)> TryGetNextObseravtionTaskAsync();
 
         Task<bool> CheckAndUpdateBalanceAsync(
-            string address);
+            string address,
+            BigInteger blockNumber);
 
         Task CompleteObservationTaskAsync(
             string completionToken);

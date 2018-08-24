@@ -26,6 +26,17 @@ namespace Lykke.Service.EthereumCommon.Services
         }
         
         
+        public async Task<bool> IsWalletAsync(
+            string address)
+        {
+            var code = await SendRequestWithTelemetryAsync<string>
+            (
+                Web3.Eth.GetCode.BuildRequest(Guid.NewGuid(), address)
+            );
+            
+            return code == "0x";
+        }
+        
         protected async Task<T> SendRequestWithTelemetryAsync<T>(
             RpcRequest request)
         {

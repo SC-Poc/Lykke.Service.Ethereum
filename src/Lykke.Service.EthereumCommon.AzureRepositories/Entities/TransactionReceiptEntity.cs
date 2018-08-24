@@ -14,6 +14,8 @@ namespace Lykke.Service.EthereumCommon.AzureRepositories.Entities
 
         public string Hash { get; set; }
         
+        public BigInteger Index { get; set; }
+        
         public BigInteger TransactionTimestamp { get; set; }
 
         public string To { get; set; }

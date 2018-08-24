@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Numerics;
 using System.Threading.Tasks;
 using Common.Log;
 using JetBrains.Annotations;
@@ -38,25 +39,25 @@ namespace Lykke.Service.EthereumWorker.Services
 
 
         public async Task<bool> CheckAndUpdateBalanceAsync(
-            string address)
+            string address,
+            BigInteger blockNumber)
         {
             try
             {
-                var bestTrustedBlockNumber = await _blockchainService.GetBestTrustedBlockNumberAsync();
                 var currentBalance = await _observableBalanceRepository.TryGetAsync(address);
 
-                if (currentBalance != null && currentBalance.BlockNumber < bestTrustedBlockNumber)
+                if (currentBalance != null && currentBalance.BlockNumber < blockNumber)
                 {
-                    var balance = await _blockchainService.GetBalanceAsync(address, bestTrustedBlockNumber);
+                    var balance = await _blockchainService.GetBalanceAsync(address, blockNumber);
                 
                     currentBalance.Amount = balance;
-                    currentBalance.BlockNumber = bestTrustedBlockNumber;
+                    currentBalance.BlockNumber = blockNumber;
 
                     _chaosKitty.Meow(address);    
                     
                     await _observableBalanceRepository.UpdateSafelyAsync(currentBalance);
                     
-                    _log.Info($"Account [{address}] balance updated to [{balance} {Constants.AssetId}] at block [{bestTrustedBlockNumber}].");
+                    _log.Info($"Account [{address}] balance updated to [{balance} {Constants.AssetId}] at block [{blockNumber}].");
                 }
                 else
                 {

@@ -228,7 +228,8 @@ namespace Lykke.Service.EthereumWorker.Services
                             {
                                 await _balanceObservationTaskRepository.EnqueueAsync(new BalanceObservationTask
                                 {
-                                    Address = affectedAddress
+                                    Address = affectedAddress,
+                                    BlockNumber = blockNumber
                                 });
                             }
                         })

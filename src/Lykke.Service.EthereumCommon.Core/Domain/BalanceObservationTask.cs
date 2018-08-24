@@ -1,4 +1,5 @@
-﻿using MessagePack;
+﻿using System.Numerics;
+using MessagePack;
 
 namespace Lykke.Service.EthereumCommon.Core.Domain
 {
@@ -7,5 +8,8 @@ namespace Lykke.Service.EthereumCommon.Core.Domain
     {
         [Key(0)]
         public string Address { get; set; }
+        
+        [Key(1)]
+        public BigInteger BlockNumber { get; set; }
     }
 }

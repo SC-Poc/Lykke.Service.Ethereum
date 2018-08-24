@@ -2,13 +2,13 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
-using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Lykke.Common.Log;
 using Lykke.Service.EthereumCommon.Services;
 using Lykke.Service.EthereumWorker.Core.Domain;
 using Lykke.Service.EthereumWorker.Core.Services;
+using Lykke.Service.EthereumWorker.Services.Models;
 using Nethereum.Hex.HexTypes;
 using Nethereum.JsonRpc.Client;
 using Nethereum.RPC.Eth.DTOs;
@@ -21,12 +21,10 @@ namespace Lykke.Service.EthereumWorker.Services
     [UsedImplicitly]
     public class BlockchainService : BlockhainServiceBase, IBlockchainService
     {
-        private readonly SemaphoreSlim _bestTrustedBlockLock;
         private readonly int _confirmationLevel;
-        
-        
-        private DateTime _bestTrustedBlockExpiration;
-        private BigInteger _bestTrustedBlockNumber;
+
+        private readonly string[] _valueTransferCallCodes =
+            new[] {"CREATE", "CALL", "CALLCODE", "DELEGATECALL", "SUICIDE"};
         
         
         public BlockchainService(
@@ -35,7 +33,6 @@ namespace Lykke.Service.EthereumWorker.Services
         
             : base(settings.ParityNodeUrl)
         {
-            _bestTrustedBlockLock = new SemaphoreSlim(1);
             _confirmationLevel = settings.ConfirmationLevel;
         }
 
@@ -62,30 +59,12 @@ namespace Lykke.Service.EthereumWorker.Services
 
         public async Task<BigInteger> GetBestTrustedBlockNumberAsync()
         {
-            if (_bestTrustedBlockExpiration <= DateTime.UtcNow)
-            {
-                await _bestTrustedBlockLock.WaitAsync();
+            var bestBlockNumber = await SendRequestWithTelemetryAsync<HexBigInteger>
+            (
+                Web3.Eth.Blocks.GetBlockNumber.BuildRequest()
+            );
 
-                try
-                {
-                    if (_bestTrustedBlockExpiration <= DateTime.UtcNow)
-                    {
-                        var bestBlockNumber = await SendRequestWithTelemetryAsync<HexBigInteger>
-                        (
-                            Web3.Eth.Blocks.GetBlockNumber.BuildRequest()
-                        );
-                        
-                        _bestTrustedBlockNumber = bestBlockNumber.Value - _confirmationLevel;
-                        _bestTrustedBlockExpiration = DateTime.UtcNow.AddSeconds(30);
-                    }
-                }
-                finally
-                {
-                    _bestTrustedBlockLock.Release();
-                }
-            }
-
-            return _bestTrustedBlockNumber;
+            return bestBlockNumber.Value - _confirmationLevel;
         }
 
         public async Task<TransactionResult> GetTransactionResultAsync(
@@ -140,15 +119,75 @@ namespace Lykke.Service.EthereumWorker.Services
             
             if (block != null)
             {
-                return block.Transactions.Where(x => x.Value.Value != 0).Select(x => new TransactionReceipt
+                var result = new List<TransactionReceipt>();
+                
+                foreach (var transaction in block.Transactions)
                 {
-                    Amount = x.Value.Value,
-                    BlockNumber = blockNumber,
-                    From = x.From,
-                    Hash = x.TransactionHash,
-                    Timestamp = block.Timestamp,
-                    To = x.To
-                });
+                    result.Add(new TransactionReceipt
+                    {
+                        Amount = transaction.Value.Value,
+                        BlockNumber = blockNumber,
+                        From = transaction.From,
+                        Hash = transaction.TransactionHash,
+                        Index = 0,
+                        Timestamp = block.Timestamp,
+                        To = transaction.To
+                    });
+                    
+                    if (transaction.To != null && !await IsWalletAsync(transaction.To))
+                    {
+                        result.AddRange
+                        (
+                            await GetInternalTransactionReceiptsAsync
+                            (
+                                transaction.TransactionHash,
+                                block.Timestamp
+                            )
+                        );
+                    }
+                }
+
+                return result;
+            }
+            else
+            {
+                return Enumerable.Empty<TransactionReceipt>();
+            }
+        }
+
+        private async Task<IEnumerable<TransactionReceipt>> GetInternalTransactionReceiptsAsync(
+            string txHash,
+            BigInteger timestamp)
+        {
+            var traces = await GetTransactionTracesAsync(txHash);
+
+            if (traces != null && traces.Length > 0)
+            {
+                var result = new List<TransactionReceipt>();
+
+                var valueTransferTraces = traces
+                    .Where(x => _valueTransferCallCodes.Contains(x.Action.CallType, StringComparer.InvariantCultureIgnoreCase))
+                    .Where(x => x.Action.Value != "0x0");
+
+                var index = 1;
+                
+                foreach (var trace in valueTransferTraces)
+                {
+                    var amount = new HexBigInteger(trace.Action.Value).Value;;
+                    
+                    result.Add(new TransactionReceipt
+                    {
+                        Amount = amount,
+                        BlockNumber = trace.BlockNumber,
+                        From = trace.Action.From,
+                        Hash = trace.TransactionHash,
+                        Index = index++,
+                        Timestamp = timestamp,
+                        To = trace.Action.To
+                    });
+                }
+
+                return result;
             }
             else
             {
@@ -156,22 +195,23 @@ namespace Lykke.Service.EthereumWorker.Services
             }
         }
         
-        //private async Task<TransactionTraceResponse[]> GetTransactionTracesAsync(string txHash)
-        //{
-        //    var transactionTraces = await SendRequestWithTelemetryAsync<IEnumerable<TransactionTraceResponse>>
-        //    (
-        //        new RpcRequest(Guid.NewGuid(), "trace_transaction", txHash)
-        //    );
-        //
-        //    if (transactionTraces != null)
-        //    {
-        //        return transactionTraces.ToArray();
-        //    }
-        //    else
-        //    {
-        //        return Array.Empty<TransactionTraceResponse>();
-        //    }
-        //}
+        
+        private async Task<TransactionTraceResponse[]> GetTransactionTracesAsync(string txHash)
+        {
+            var transactionTraces = await SendRequestWithTelemetryAsync<IEnumerable<TransactionTraceResponse>>
+            (
+                new RpcRequest(Guid.NewGuid(), "trace_transaction", txHash)
+            );
+        
+            if (transactionTraces != null)
+            {
+                return transactionTraces.ToArray();
+            }
+            else
+            {
+                return Array.Empty<TransactionTraceResponse>();
+            }
+        }
         
         public class Settings
         {

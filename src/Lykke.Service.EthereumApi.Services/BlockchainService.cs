@@ -115,17 +115,6 @@ namespace Lykke.Service.EthereumApi.Services
                 .ToHex(prefix: true);
         }
 
-        public async Task<bool> IsWalletAsync(
-            string address)
-        {
-            var code = await SendRequestWithTelemetryAsync<string>
-            (
-                Web3.Eth.GetCode.BuildRequest(Guid.NewGuid(), address)
-            );
-            
-            return code == "0x";
-        }
-        
         private async Task<bool> CheckIfBroadcastedAsync(
             string txHash)
         {
