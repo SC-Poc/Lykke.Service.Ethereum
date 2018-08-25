@@ -31,7 +31,10 @@ namespace Lykke.Service.EthereumApi.Services
         private readonly IReloadingManager<string> _maxGasPriceManager;
         private readonly IReloadingManager<string> _minGasPriceManager;
 
+        private BigInteger _maxGasPrice;
+        private BigInteger _minGasPrice;
         private DateTime _gasPriceExpiration;
+        
         
         
         public BlockchainService(
@@ -42,7 +45,9 @@ namespace Lykke.Service.EthereumApi.Services
         {
             _gasPriceLock = new SemaphoreSlim(1);
             _log = logFactory.CreateLog(this);
+            _maxGasPrice = BigInteger.Parse(settings.MaxGasPriceManager.CurrentValue);
             _maxGasPriceManager = settings.MaxGasPriceManager;
+            _minGasPrice = BigInteger.Parse(settings.MinGasPriceManager.CurrentValue);
             _minGasPriceManager = settings.MinGasPriceManager;
         }
 
@@ -143,17 +148,14 @@ namespace Lykke.Service.EthereumApi.Services
                 Web3.Eth.Transactions.EstimateGas.BuildRequest(input)
             );
             
-            var minGasPrice = BigInteger.Parse(_minGasPriceManager.CurrentValue);
-            var maxGasPrice = BigInteger.Parse(_maxGasPriceManager.CurrentValue);
-
-            if (estimatedGasPrice.Value > maxGasPrice)
+            if (estimatedGasPrice.Value > _maxGasPrice)
             {
-                return maxGasPrice;
+                return _maxGasPrice;
             }
 
-            if (estimatedGasPrice.Value < minGasPrice)
+            if (estimatedGasPrice.Value < _minGasPrice)
             {
-                return minGasPrice;
+                return _minGasPrice;
             }
 
             return estimatedGasPrice.Value;
@@ -178,8 +180,8 @@ namespace Lykke.Service.EthereumApi.Services
 
                 try
                 {
-                    var previousMaxGasPrice = _maxGasPriceManager.CurrentValue;
-                    var previousMinGasPrice = _minGasPriceManager.CurrentValue;
+                    var previousMaxGasPrice = _maxGasPrice;
+                    var previousMinGasPrice = _minGasPrice;
                     
                     if (_gasPriceExpiration <= DateTime.UtcNow)
                     {
@@ -192,22 +194,26 @@ namespace Lykke.Service.EthereumApi.Services
                         _gasPriceExpiration = DateTime.UtcNow.AddMinutes(1);
                     }
                     
-                    var newMaxGasPrice = _maxGasPriceManager.CurrentValue;
-                    var newMinGasPrice = _minGasPriceManager.CurrentValue;
+                    var newMaxGasPrice = BigInteger.Parse(_maxGasPriceManager.CurrentValue);
+                    var newMinGasPrice = BigInteger.Parse(_maxGasPriceManager.CurrentValue);
 
                     if (newMaxGasPrice != previousMaxGasPrice)
                     {
+                        _maxGasPrice = newMaxGasPrice;
+                        
                         _log.Info($"Maximal gas price set to {newMaxGasPrice}");
                     }
                     
                     if (newMinGasPrice != previousMinGasPrice)
                     {
+                        _minGasPrice = newMinGasPrice;
+                        
                         _log.Info($"Maximal gas price set to {newMinGasPrice}");
                     }
                 }
                 catch (Exception e)
                 {
-                    _log.Error(e, "Failed to update minimal and maximal gas prices.");
+                    _log.Warning("Failed to update minimal and maximal gas prices.", e);
                 }
                 finally
                 {
