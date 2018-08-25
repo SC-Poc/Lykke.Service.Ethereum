@@ -29,7 +29,7 @@ namespace Lykke.Service.EthereumWorker.QueueConsumers
 
         protected override async Task<(bool, (BalanceObservationTask, string))> TryGetNextTaskAsync()
         {
-            var taskAndCompletionToken = await _balanceObservationService.TryGetNextObseravtionTaskAsync();
+            var taskAndCompletionToken = await _balanceObservationService.TryGetNextObservationTaskAsync();
 
             return (taskAndCompletionToken.Task != null, taskAndCompletionToken);
         }

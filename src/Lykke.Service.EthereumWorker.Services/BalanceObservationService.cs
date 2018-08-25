@@ -48,16 +48,17 @@ namespace Lykke.Service.EthereumWorker.Services
 
                 if (currentBalance != null && currentBalance.BlockNumber < blockNumber)
                 {
-                    var balance = await _blockchainService.GetBalanceAsync(address, blockNumber);
+                    var bestBlockNumber = await _blockchainService.GetBestTrustedBlockNumberAsync();
+                    var balance = await _blockchainService.GetBalanceAsync(address, bestBlockNumber);
                 
                     currentBalance.Amount = balance;
-                    currentBalance.BlockNumber = blockNumber;
+                    currentBalance.BlockNumber = bestBlockNumber;
 
                     _chaosKitty.Meow(address);    
                     
                     await _observableBalanceRepository.UpdateSafelyAsync(currentBalance);
                     
-                    _log.Info($"Account [{address}] balance updated to [{balance} {Constants.AssetId}] at block [{blockNumber}].");
+                    _log.Info($"Account [{address}] balance updated to [{balance} {Constants.AssetId}] at block [{bestBlockNumber}].");
                 }
                 else
                 {
@@ -80,7 +81,7 @@ namespace Lykke.Service.EthereumWorker.Services
             return _balanceObservationTaskRepository.CompleteAsync(completionToken);
         }
 
-        public Task<(BalanceObservationTask Task, string CompletionToken)> TryGetNextObseravtionTaskAsync()
+        public Task<(BalanceObservationTask Task, string CompletionToken)> TryGetNextObservationTaskAsync()
         {
             return _balanceObservationTaskRepository.TryGetAsync(TimeSpan.FromMinutes(1));
         }

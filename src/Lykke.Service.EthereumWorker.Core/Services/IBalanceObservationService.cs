@@ -7,7 +7,7 @@ namespace Lykke.Service.EthereumWorker.Core.Services
 {
     public interface IBalanceObservationService
     {
-        Task<(BalanceObservationTask Task, string CompletionToken)> TryGetNextObseravtionTaskAsync();
+        Task<(BalanceObservationTask Task, string CompletionToken)> TryGetNextObservationTaskAsync();
 
         Task<bool> CheckAndUpdateBalanceAsync(
             string address,
