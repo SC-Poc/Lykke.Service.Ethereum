@@ -123,17 +123,6 @@ namespace Lykke.Service.EthereumWorker.Services
                 
                 foreach (var transaction in block.Transactions)
                 {
-                    result.Add(new TransactionReceipt
-                    {
-                        Amount = transaction.Value.Value,
-                        BlockNumber = blockNumber,
-                        From = transaction.From,
-                        Hash = transaction.TransactionHash,
-                        Index = 0,
-                        Timestamp = block.Timestamp,
-                        To = transaction.To
-                    });
-                    
                     if (transaction.To != null && !await IsWalletAsync(transaction.To))
                     {
                         result.AddRange
@@ -144,6 +133,19 @@ namespace Lykke.Service.EthereumWorker.Services
                                 block.Timestamp
                             )
                         );
+                    }
+                    else
+                    {
+                        result.Add(new TransactionReceipt
+                        {
+                            Amount = transaction.Value.Value,
+                            BlockNumber = blockNumber,
+                            From = transaction.From,
+                            Hash = transaction.TransactionHash,
+                            Index = 0,
+                            Timestamp = block.Timestamp,
+                            To = transaction.To
+                        });
                     }
                 }
 
@@ -169,7 +171,7 @@ namespace Lykke.Service.EthereumWorker.Services
                     .Where(x => _valueTransferCallCodes.Contains(x.Action.CallType, StringComparer.InvariantCultureIgnoreCase))
                     .Where(x => x.Action.Value != "0x0");
 
-                var index = 1;
+                var index = 0;
                 
                 foreach (var trace in valueTransferTraces)
                 {

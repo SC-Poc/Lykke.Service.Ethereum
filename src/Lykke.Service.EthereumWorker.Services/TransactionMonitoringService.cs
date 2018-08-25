@@ -124,7 +124,7 @@ namespace Lykke.Service.EthereumWorker.Services
                 _log.Info
                 (
                     !transactionResult.IsFailed
-                        ? $"Transaction [{transactionId}] succeded in block {transactionResult.BlockNumber}."
+                        ? $"Transaction [{transactionId}] succeeded in block {transactionResult.BlockNumber}."
                         : $"Transaction [{transactionId}] failed in block {transactionResult.BlockNumber}."
                 );
             }
