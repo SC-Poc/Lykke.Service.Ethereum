@@ -4,7 +4,6 @@ using System.Linq;
 using System.Numerics;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
-using Lykke.Common.Log;
 using Lykke.Service.EthereumCommon.Services;
 using Lykke.Service.EthereumWorker.Core.Domain;
 using Lykke.Service.EthereumWorker.Core.Services;
@@ -28,7 +27,6 @@ namespace Lykke.Service.EthereumWorker.Services
         
         
         public BlockchainService(
-            ILogFactory logFactory,
             Settings settings)
         
             : base(settings.ParityNodeUrl)
@@ -175,7 +173,7 @@ namespace Lykke.Service.EthereumWorker.Services
                 
                 foreach (var trace in valueTransferTraces)
                 {
-                    var amount = new HexBigInteger(trace.Action.Value).Value;;
+                    var amount = new HexBigInteger(trace.Action.Value).Value;
                     
                     result.Add(new TransactionReceipt
                     {
