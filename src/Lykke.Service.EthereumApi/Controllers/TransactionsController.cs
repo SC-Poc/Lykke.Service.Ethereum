@@ -152,6 +152,7 @@ namespace Lykke.Service.EthereumApi.Controllers
                 {
                     Amount = txState.Amount.ToString(),
                     Block = txState.BlockNumber.HasValue ? (long) txState.BlockNumber.Value : 0,
+                    Fee = (txState.GasAmount * txState.GasPrice).ToString(),
                     Hash = txState.Hash,
                     OperationId = txState.TransactionId
                 };
