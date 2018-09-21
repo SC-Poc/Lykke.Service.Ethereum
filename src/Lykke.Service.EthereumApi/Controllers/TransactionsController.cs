@@ -150,6 +150,7 @@ namespace Lykke.Service.EthereumApi.Controllers
             {
                 var response = new BroadcastedSingleTransactionResponse
                 {
+                    Amount = txState.Amount.ToString(),
                     Block = txState.BlockNumber.HasValue ? (long) txState.BlockNumber.Value : 0,
                     Hash = txState.Hash,
                     OperationId = txState.TransactionId
