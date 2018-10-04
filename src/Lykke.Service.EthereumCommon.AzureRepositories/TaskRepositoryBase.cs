@@ -30,11 +30,23 @@ namespace Lykke.Service.EthereumCommon.AzureRepositories
             await _queue.FinishRawMessageAsync(new CloudQueueMessage(messageId, popReceipt));
         }
 
-        public async Task EnqueueAsync(T task)
+        public async Task EnqueueAsync(
+            T task)
         {
             await _queue.PutRawMessageAsync
             (
                 SerializeObject(task)
+            );
+        }
+        
+        public async Task EnqueueAsync(
+            T task,
+            TimeSpan initialVisibilityDelay)
+        {
+            await _queue.PutRawMessageAsync
+            (
+                SerializeObject(task),
+                initialVisibilityDelay
             );
         }
 

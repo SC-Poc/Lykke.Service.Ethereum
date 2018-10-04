@@ -11,6 +11,10 @@ namespace Lykke.Service.EthereumCommon.Core.Repositories
 
         Task EnqueueAsync(
             T task);
+        
+        Task EnqueueAsync(
+            T task,
+            TimeSpan initialVisibilityDelay);
 
         Task<(T Task, string CompletionToken)> TryGetAsync(
             TimeSpan visibilityTimeout);

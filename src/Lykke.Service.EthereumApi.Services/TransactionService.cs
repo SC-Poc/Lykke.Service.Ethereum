@@ -146,7 +146,8 @@ namespace Lykke.Service.EthereumApi.Services
                             new TransactionMonitoringTask
                             {
                                 TransactionId = transactionId
-                            }
+                            },
+                            TimeSpan.FromMinutes(1)
                         );
                         
                         _chaosKitty.Meow(transactionId);
