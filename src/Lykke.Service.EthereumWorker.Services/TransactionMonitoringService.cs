@@ -70,10 +70,32 @@ namespace Lykke.Service.EthereumWorker.Services
 
                     return transactionResult.IsCompleted;
                 }
+                else if (transaction == null)
+                {
+                    _log.Warning($"Transaction [{transactionId}] does not exist.");
+
+                    return true;
+                }
                 else
                 {
-                    _log.Warning($"Transaction [{transactionId}] does not exist or has already been marked as completed.");
-
+                    // ReSharper disable once SwitchStatementMissingSomeCases
+                    switch (transaction.State)
+                    {
+                        case TransactionState.Built:
+                            _log.Warning($"Transaction [{transactionId}] has not been broadcasted.");
+                            break;
+                        case TransactionState.Completed:
+                        case TransactionState.Failed:
+                            _log.Warning($"Transaction [{transactionId}] has already been marked as finished.");
+                            break;
+                        case TransactionState.Deleted:
+                            _log.Warning($"Transaction [{transactionId}] has already been deleted.");
+                            break;
+                        default:
+                            _log.Error($"Transaction [{transactionId}] is in unexpected state [{transaction.State.ToString()}].");
+                            break;
+                    }
+                    
                     return true;
                 }
             }
