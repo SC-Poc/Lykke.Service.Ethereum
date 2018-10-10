@@ -187,7 +187,7 @@ namespace Lykke.Service.EthereumApi.Services
                     }
                     
                     var newMaxGasPrice = BigInteger.Parse(_maxGasPriceManager.CurrentValue);
-                    var newMinGasPrice = BigInteger.Parse(_maxGasPriceManager.CurrentValue);
+                    var newMinGasPrice = BigInteger.Parse(_minGasPriceManager.CurrentValue);
 
                     if (newMaxGasPrice != previousMaxGasPrice)
                     {
