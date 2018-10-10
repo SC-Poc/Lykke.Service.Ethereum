@@ -20,7 +20,7 @@ namespace Lykke.Service.EthereumApi.Services
         private readonly IChaosKitty _chaosKitty;
         private readonly ILog _log;
         private readonly BigInteger _minimalTransactionAmount;
-        private readonly ITransactionMonitoringTaskRepository _tranferTransactionMonitoringTaskRepository;
+        private readonly ITransactionMonitoringTaskRepository _transferTransactionMonitoringTaskRepository;
         private readonly ITransactionRepository _transactionRepository;
 
         
@@ -28,7 +28,7 @@ namespace Lykke.Service.EthereumApi.Services
             IBlockchainService blockchainService,
             IChaosKitty chaosKitty,
             ILogFactory logFactory,
-            ITransactionMonitoringTaskRepository tranferTransactionMonitoringTaskRepository,
+            ITransactionMonitoringTaskRepository transferTransactionMonitoringTaskRepository,
             ITransactionRepository transactionRepository,
             Settings settings)
         {
@@ -36,7 +36,7 @@ namespace Lykke.Service.EthereumApi.Services
             _chaosKitty = chaosKitty;
             _log = logFactory.CreateLog(this);
             _minimalTransactionAmount = settings.MinimalTransactionAmount;
-            _tranferTransactionMonitoringTaskRepository = tranferTransactionMonitoringTaskRepository;
+            _transferTransactionMonitoringTaskRepository = transferTransactionMonitoringTaskRepository;
             _transactionRepository = transactionRepository;
         }
 
@@ -60,7 +60,7 @@ namespace Lykke.Service.EthereumApi.Services
             if (transaction == null)
             {
                 var balance = await _blockchainService.GetBalanceAsync(from);
-                var gasPrice = await _blockchainService.EstimateGasPriceAsync(to, amount);
+                var gasPrice = await _blockchainService.EstimateGasPriceAsync();
                 var transactionFee = gasPrice * Constants.GasAmount;
                 
                 if (includeFee)
@@ -141,7 +141,7 @@ namespace Lykke.Service.EthereumApi.Services
                             signedData: signedTxData
                         );
                         
-                        await _tranferTransactionMonitoringTaskRepository.EnqueueAsync
+                        await _transferTransactionMonitoringTaskRepository.EnqueueAsync
                         (
                             new TransactionMonitoringTask
                             {

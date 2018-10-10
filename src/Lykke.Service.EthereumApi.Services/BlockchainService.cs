@@ -131,21 +131,13 @@ namespace Lykke.Service.EthereumApi.Services
             return transaction != null;
         }
         
-        public async Task<BigInteger> EstimateGasPriceAsync(
-            string to,
-            BigInteger amount)
+        public async Task<BigInteger> EstimateGasPriceAsync()
         {   
             await UpdateMinAndMaxGasPricesAsync();
 
-            var input = new TransactionInput
-            {
-                To = to,
-                Value = new HexBigInteger(amount)
-            };
-            
             var estimatedGasPrice = await SendRequestWithTelemetryAsync<HexBigInteger>
             (
-                Web3.Eth.Transactions.EstimateGas.BuildRequest(input)
+                Web3.Eth.GasPrice.BuildRequest()
             );
             
             if (estimatedGasPrice.Value > _maxGasPrice)
@@ -230,13 +222,6 @@ namespace Lykke.Service.EthereumApi.Services
             return Keccak256
                 .Sum(txDataBytes)
                 .ToHex(true);
-            
-            //var rlpSigner = new RLPSigner(txDataBytes, 6);
-            //
-            //var encoded rlpSigner.GetRLPEncoded()
-            //
-            //return (new Nethereum.Signer.Transaction(txDataBytes))
-            //    .ToHex(true);
         }
 
 
