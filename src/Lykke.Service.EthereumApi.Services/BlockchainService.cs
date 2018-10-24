@@ -44,6 +44,15 @@ namespace Lykke.Service.EthereumApi.Services
         
             : base(settings.ParityNodeUrl)
         {
+            if (settings.GasAmountReservePercentage < 0 || settings.GasAmountReservePercentage > 100)
+            {
+                throw new ArgumentException
+                (
+                    "Should be in range of [0..100].",
+                    nameof(settings.GasAmountReservePercentage)
+                );
+            }
+            
             _gasAmountReservePercentage = settings.GasAmountReservePercentage ?? 10;
             _gasPriceLock = new SemaphoreSlim(1);
             _log = logFactory.CreateLog(this);

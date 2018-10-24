@@ -52,6 +52,8 @@ namespace Lykke.Service.EthereumApi.Services
             _minimalTransactionAmount = settings.MinimalTransactionAmount;
             _transferTransactionMonitoringTaskRepository = transferTransactionMonitoringTaskRepository;
             _transactionRepository = transactionRepository;
+            
+            ValidateMaxGasAmount(_maxGasAmount);
         }
 
         
@@ -302,6 +304,8 @@ namespace Lykke.Service.EthereumApi.Services
                     
                     var newMaxGasAmount = BigInteger.Parse(_maxGasAmountManager.CurrentValue);
 
+                    ValidateMaxGasAmount(newMaxGasAmount);
+                    
                     if (newMaxGasAmount != previousMaxGasAmount)
                     {
                         _maxGasAmount = newMaxGasAmount;
@@ -320,6 +324,15 @@ namespace Lykke.Service.EthereumApi.Services
             }
 
             return _maxGasAmount;
+        }
+
+        private static void ValidateMaxGasAmount(
+            BigInteger maxGasAmount)
+        {
+            if (maxGasAmount <= 0)
+            {
+                throw new ArgumentException("Max gas amount should be greater than zero.");
+            }
         }
 
 
