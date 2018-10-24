@@ -62,17 +62,21 @@ namespace Lykke.Service.EthereumApi.Services
             BigInteger amount,
             bool includeFee)
         {
-            if (amount < _minimalTransactionAmount)
-            {
-                _log.Info($"Failed to build transaction [{transactionId}]: amount is too small.");
-                
-                return BuildTransactionResult.AmountIsTooSmall;
-            }
-            
             var transaction = await _transactionRepository.TryGetAsync(transactionId);
 
             if (transaction == null)
             {
+                // Check, if target address is blacklisted
+                
+                if (!await _addressService.ValidateAsync(to))
+                {
+                    _log.Info($"Failed to build transaction [{transactionId}]: target address [{to}] is either blacklisted, or invalid.");
+                    
+                    return BuildTransactionResult.TargetAddressBlacklistedOrInvalid;
+                }
+                
+                // Get and validate required gas amount
+                
                 var gasAmountAndMaxGasAmount = await Task.WhenAll
                 (
                     _blockchainService.EstimateGasAmountAsync(from, to, amount),
@@ -96,6 +100,8 @@ namespace Lykke.Service.EthereumApi.Services
                     return BuildTransactionResult.GasAmountIsTooHigh;
                 }
 
+                // Calculate and validate transaction amount
+                
                 var balanceAndGasPrice = await Task.WhenAll
                 (
                     _blockchainService.GetBalanceAsync(from),
@@ -111,6 +117,13 @@ namespace Lykke.Service.EthereumApi.Services
                     amount -= transactionFee;
                 }
                 
+                if (amount < _minimalTransactionAmount)
+                {
+                    _log.Info($"Failed to build transaction [{transactionId}]: amount is too small.");
+                
+                    return BuildTransactionResult.AmountIsTooSmall;
+                }
+                
                 if (balance < amount + transactionFee)
                 {
                     _log.Info($"Failed to build transaction [{transactionId}]: balance is not enough.");
@@ -118,6 +131,17 @@ namespace Lykke.Service.EthereumApi.Services
                     return BuildTransactionResult.BalanceIsNotEnough;
                 }
 
+                // Build transaction
+                
+                var encodedTransaction = await _blockchainService.BuildTransactionAsync
+                (
+                    from,
+                    to,
+                    amount,
+                    gasAmount,
+                    gasPrice
+                );
+                
                 transaction = Transaction.Build
                 (
                     transactionId: transactionId,
@@ -127,7 +151,7 @@ namespace Lykke.Service.EthereumApi.Services
                     gasAmount: gasAmount,
                     gasPrice: gasPrice,
                     includeFee: includeFee,
-                    data: await _blockchainService.BuildTransactionAsync(from, to, amount, gasPrice)
+                    data: encodedTransaction
                 );
 
                 _chaosKitty.Meow(transactionId);

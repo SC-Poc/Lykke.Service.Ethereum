@@ -106,12 +106,13 @@ namespace Lykke.Service.EthereumApi.Services
             string from,
             string to,
             BigInteger amount,
+            BigInteger gasAmount,
             BigInteger gasPrice)
         {
             var transaction = new UnsignedTransaction
             {
                 Amount = amount,
-                GasAmount = await EstimateGasAmountAsync(from, to, amount),
+                GasAmount = gasAmount,
                 GasPrice = gasPrice,
                 Nonce = await GetNextNonceAsync(from),
                 To = to

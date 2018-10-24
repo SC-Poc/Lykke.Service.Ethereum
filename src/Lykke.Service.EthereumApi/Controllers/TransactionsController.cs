@@ -67,6 +67,11 @@ namespace Lykke.Service.EthereumApi.Controllers
                             BlockchainErrorResponse.FromUnknownError(
                                 "Required gas amount is too high."));
                     
+                    case BuildTransactionError.TargetAddressBlacklistedOrInvalid:
+                        return BadRequest(
+                            BlockchainErrorResponse.FromUnknownError(
+                                "Target address is either blacklisted, or invalid."));
+                    
                     case BuildTransactionError.TransactionHasBeenBroadcasted:
                         return Conflict(
                             BlockchainErrorResponse.FromUnknownError

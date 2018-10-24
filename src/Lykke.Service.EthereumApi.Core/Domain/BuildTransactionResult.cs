@@ -14,6 +14,9 @@ namespace Lykke.Service.EthereumApi.Core.Domain
         public static readonly Error GasAmountIsTooHigh 
             = new Error(BuildTransactionError.GasAmountIsTooHigh);
         
+        public static readonly Error TargetAddressBlacklistedOrInvalid 
+            = new Error(BuildTransactionError.TargetAddressBlacklistedOrInvalid);
+        
         public static readonly Error TransactionHasBeenBroadcasted 
             = new Error(BuildTransactionError.TransactionHasBeenDeleted);
         
