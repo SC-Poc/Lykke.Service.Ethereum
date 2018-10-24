@@ -27,6 +27,7 @@ namespace Lykke.Service.EthereumApi.Services
         private readonly BigInteger _minimalTransactionAmount;
         private readonly ITransactionMonitoringTaskRepository _transferTransactionMonitoringTaskRepository;
         private readonly ITransactionRepository _transactionRepository;
+        private readonly IWhitelistedAddressRepository _whitelistedAddressRepository;
 
         
         private BigInteger _maxGasAmount;
@@ -38,9 +39,10 @@ namespace Lykke.Service.EthereumApi.Services
             IBlockchainService blockchainService,
             IChaosKitty chaosKitty,
             ILogFactory logFactory,
+            Settings settings,
             ITransactionMonitoringTaskRepository transferTransactionMonitoringTaskRepository,
             ITransactionRepository transactionRepository,
-            Settings settings)
+            IWhitelistedAddressRepository whitelistedAddressRepository)
         {
             _addressService = addressService;
             _blockchainService = blockchainService;
@@ -52,6 +54,7 @@ namespace Lykke.Service.EthereumApi.Services
             _minimalTransactionAmount = settings.MinimalTransactionAmount;
             _transferTransactionMonitoringTaskRepository = transferTransactionMonitoringTaskRepository;
             _transactionRepository = transactionRepository;
+            _whitelistedAddressRepository = whitelistedAddressRepository;
             
             ValidateMaxGasAmount(_maxGasAmount);
         }
@@ -88,7 +91,7 @@ namespace Lykke.Service.EthereumApi.Services
                 var gasAmount = gasAmountAndMaxGasAmount[0];
                 var maxGasAmount = gasAmountAndMaxGasAmount[1];
 
-                if (gasAmount > maxGasAmount)
+                if (gasAmount > maxGasAmount && !await _whitelistedAddressRepository.ContainsAsync(to))
                 {
                     await BlacklistAddressIfNecessaryAsync
                     (

@@ -24,7 +24,7 @@ using TransactionReceipt = Nethereum.RPC.Eth.DTOs.TransactionReceipt;
 namespace Lykke.Service.EthereumApi.Services
 {
     [UsedImplicitly]
-    public class BlockchainService : BlockhainServiceBase, IBlockchainService
+    public class BlockchainService : BlockchainServiceBase, IBlockchainService
     {
         private readonly int _gasAmountReservePercentage;
         private readonly SemaphoreSlim _gasPriceLock;

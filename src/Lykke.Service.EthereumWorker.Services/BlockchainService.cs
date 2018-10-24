@@ -18,7 +18,7 @@ using TransactionReceipt = Lykke.Service.EthereumCommon.Core.Domain.TransactionR
 namespace Lykke.Service.EthereumWorker.Services
 {
     [UsedImplicitly]
-    public class BlockchainService : BlockhainServiceBase, IBlockchainService
+    public class BlockchainService : BlockchainServiceBase, IBlockchainService
     {
         private readonly int _confirmationLevel;
 
