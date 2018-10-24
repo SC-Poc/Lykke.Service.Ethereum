@@ -1,6 +1,8 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Lykke.Service.BlockchainApi.Contract.Addresses;
+using Lykke.Service.EthereumApi.Core.Domain;
 using Lykke.Service.EthereumApi.Models;
 using Lykke.Service.EthereumApi.Core.Services;
 using Microsoft.AspNetCore.Mvc;
@@ -29,6 +31,109 @@ namespace Lykke.Service.EthereumApi.Controllers
             {
                 IsValid = await _addressService.ValidateAsync(address)
             };
+        }
+
+        [HttpPost("blacklist/{address}")]
+        public async Task<IActionResult> AddAddressToBlacklist(
+            AddressRequest request)
+        {
+            var result = await _addressService.AddAddressToBlacklistAsync
+            (
+                address: request.Address,
+                reason: "Blacklisted via API."
+            );
+
+            switch (result)
+            {
+                case AddAddressResult.SuccessResult _:
+                    return Ok();
+                
+                case AddAddressResult.HasAlreadyBeenAddedError _:
+                    return Conflict();
+                
+                default:
+                    throw new NotSupportedException(
+                        $"{nameof(_addressService.AddAddressToBlacklistAsync)} returned unsupported result.");
+            }
+        }
+        
+        [HttpPost("whitelist/{address}")]
+        public async Task<IActionResult> AddAddressToWhitelist(
+            AddressRequest request)
+        {
+            var result = await _addressService.AddAddressToWhitelistAsync(request.Address);
+            
+            switch (result)
+            {
+                case AddAddressResult.SuccessResult _:
+                    return Ok();
+                
+                case AddAddressResult.HasAlreadyBeenAddedError _:
+                    return Conflict();
+                
+                default:
+                    throw new NotSupportedException(
+                        $"{nameof(_addressService.AddAddressToWhitelistAsync)} returned unsupported result.");
+            }
+        }
+
+        [HttpGet("blacklist/{address}/reason")]
+        public async Task<ActionResult<BlacklistingReasonResponse>> GetBlacklistingReason(
+            AddressRequest request)
+        {
+            var reason = await _addressService.TryGetBlacklistingReason(request.Address);
+
+            if (reason != null)
+            {
+                return new BlacklistingReasonResponse
+                {
+                    Reason = reason
+                };
+            }
+            else
+            {
+                return NoContent();
+            }
+        }
+        
+        [HttpDelete("blacklist/{address}")]
+        public async Task<IActionResult> RemoveAddressFromBlacklist(
+            AddressRequest request)
+        {
+            var result = await _addressService.RemoveAddressFromBlacklistAsync(request.Address);
+            
+            switch (result)
+            {
+                case RemoveAddressResult.SuccessResult _:
+                    return Ok();
+                
+                case RemoveAddressResult.NotFoundError _:
+                    return NoContent();
+                
+                default:
+                    throw new NotSupportedException(
+                        $"{nameof(_addressService.RemoveAddressFromBlacklistAsync)} returned unsupported result.");
+            }
+        }
+        
+        [HttpDelete("whitelist/{address}")]
+        public async Task<IActionResult> RemoveAddressFromWhitelist(
+            AddressRequest request)
+        {
+            var result = await _addressService.RemoveAddressFromWhitelistAsync(request.Address);
+            
+            switch (result)
+            {
+                case RemoveAddressResult.SuccessResult _:
+                    return Ok();
+                
+                case RemoveAddressResult.NotFoundError _:
+                    return NoContent();
+                
+                default:
+                    throw new NotSupportedException(
+                        $"{nameof(_addressService.RemoveAddressFromWhitelistAsync)} returned unsupported result.");
+            }
         }
 
         #region Not Implemented Endpoints

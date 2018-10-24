@@ -56,6 +56,17 @@ namespace Lykke.Service.EthereumApi.Modules
                 .As<IBalanceObservationTaskRepository>()
                 .SingleInstance();
             
+            // BlacklistedAddressRepository
+            
+            builder
+                .Register(x => BlacklistedAddressRepository.Create
+                (
+                    connectionString: connectionString,
+                    logFactory: x.Resolve<ILogFactory>()
+                ))
+                .As<IBlacklistedAddressRepository>()
+                .SingleInstance();
+            
             // ObservableBalanceRepository
 
             builder
@@ -98,6 +109,17 @@ namespace Lykke.Service.EthereumApi.Modules
                 ))
                 .As<ITransactionReceiptRepository>()
                 .SingleInstance();
+
+            // WhitelistedAddressRepository
+            
+            builder
+                .Register(x => WhitelistedAddressRepository.Create
+                (
+                    connectionString: connectionString,
+                    logFactory: x.Resolve<ILogFactory>()
+                ))
+                .As<IWhitelistedAddressRepository>()
+                .SingleInstance();
         }
 
         private void LoadServices(
@@ -127,6 +149,7 @@ namespace Lykke.Service.EthereumApi.Modules
             builder
                 .RegisterInstance(new BlockchainService.Settings
                 {
+                    GasAmountReservePercentage = ServiceSettings.GasAmountReservePercentage,
                     MaxGasPriceManager = _appSettings.Nested(x => x.ApiService.MaximalGasPrice),
                     MinGasPriceManager = _appSettings.Nested(x => x.ApiService.MinimalGasPrice),
                     ParityNodeUrl = ServiceSettings.ParityNodeUrl
@@ -151,6 +174,7 @@ namespace Lykke.Service.EthereumApi.Modules
             builder
                 .RegisterInstance(new TransactionService.Settings
                 {
+                    MaxGasAmountManager = _appSettings.Nested(x => x.ApiService.MaximalGasAmount),
                     MinimalTransactionAmount = BigInteger.Parse(ServiceSettings.MinimalTransactionAmount)
                 })
                 .AsSelf();

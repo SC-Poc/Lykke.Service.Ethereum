@@ -6,9 +6,6 @@ namespace Lykke.Service.EthereumApi.Core.Services
 {
     public interface IBlockchainService
     {
-        Task<BigInteger> GetBalanceAsync(
-            [NotNull] string address);
-
         Task<string> BroadcastTransactionAsync(
             [NotNull] string signedTxData);
 
@@ -18,7 +15,15 @@ namespace Lykke.Service.EthereumApi.Core.Services
             BigInteger amount,
             BigInteger gasPrice);
 
+        Task<BigInteger> EstimateGasAmountAsync(
+            string from,
+            string to,
+            BigInteger amount);
+        
         Task<BigInteger> EstimateGasPriceAsync();
+
+        Task<BigInteger> GetBalanceAsync(
+            [NotNull] string address);
         
         Task<bool> IsWalletAsync(
             [NotNull] string address);

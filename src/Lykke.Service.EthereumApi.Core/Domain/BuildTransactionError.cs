@@ -4,6 +4,7 @@
     {
         AmountIsTooSmall,
         BalanceIsNotEnough,
+        GasAmountIsTooHigh,
         TransactionHasBeenBroadcasted,
         TransactionHasBeenDeleted,
     }

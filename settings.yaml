@@ -8,8 +8,12 @@ ApiService:
       settings-key: LogsConnString
       types:
         - AzureTableStorage
+  GasAmountReservePercentage:
+    settings-key: Ethereum-GasAmountReservePercentage
+  MaximalGasAmount:
+    settings-key: Ethereum-MaximalGasAmount
   MaximalGasPrice:
-      settings-key: Ethereum-MaximalGasPrice
+    settings-key: Ethereum-MaximalGasPrice
   MinimalGasPrice:
     settings-key: Ethereum-MinimalGasPrice
   MinimalTransactionAmount:

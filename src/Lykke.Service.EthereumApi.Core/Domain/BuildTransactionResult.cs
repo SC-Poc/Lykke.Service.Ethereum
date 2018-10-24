@@ -11,6 +11,9 @@ namespace Lykke.Service.EthereumApi.Core.Domain
         public static readonly Error BalanceIsNotEnough 
             = new Error(BuildTransactionError.BalanceIsNotEnough);
         
+        public static readonly Error GasAmountIsTooHigh 
+            = new Error(BuildTransactionError.GasAmountIsTooHigh);
+        
         public static readonly Error TransactionHasBeenBroadcasted 
             = new Error(BuildTransactionError.TransactionHasBeenDeleted);
         

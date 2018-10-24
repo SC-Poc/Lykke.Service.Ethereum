@@ -109,6 +109,17 @@ namespace Lykke.Service.EthereumWorker.Modules
                 .As<IBalanceObservationTaskRepository>()
                 .SingleInstance();
             
+            // BlacklistedAddressRepository
+            
+            builder
+                .Register(x => BlacklistedAddressRepository.Create
+                (
+                    connectionString: connectionString,
+                    logFactory: x.Resolve<ILogFactory>()
+                ))
+                .As<IBlacklistedAddressRepository>()
+                .SingleInstance();
+            
             // BlockchainIndexationStateRepository
             
             builder

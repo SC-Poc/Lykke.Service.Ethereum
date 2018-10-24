@@ -62,6 +62,11 @@ namespace Lykke.Service.EthereumApi.Controllers
                             BlockchainErrorResponse.FromKnownError(
                                 BlockchainErrorCode.NotEnoughBalance));
                     
+                    case BuildTransactionError.GasAmountIsTooHigh:
+                        return BadRequest(
+                            BlockchainErrorResponse.FromUnknownError(
+                                "Required gas amount is too high."));
+                    
                     case BuildTransactionError.TransactionHasBeenBroadcasted:
                         return Conflict(
                             BlockchainErrorResponse.FromUnknownError
