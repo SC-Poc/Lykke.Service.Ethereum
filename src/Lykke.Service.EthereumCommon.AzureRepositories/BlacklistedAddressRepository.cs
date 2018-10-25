@@ -1,3 +1,5 @@
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using AzureStorage;
 using AzureStorage.Tables;
@@ -59,6 +61,17 @@ namespace Lykke.Service.EthereumCommon.AzureRepositories
             var blacklistedAddress = await TryGetAsync(address);
             
             return blacklistedAddress != null;
+        }
+        
+        public async Task<(IEnumerable<BlacklistedAddress> Addresses, string ContinuationToken)> GetAllAsync(
+            int take,
+            string continuationToken)
+        {
+            IEnumerable<BlacklistedAddressEntity> addresses;
+            
+            (addresses, continuationToken) = await _blacklistedAddresses.GetDataWithContinuationTokenAsync(take, continuationToken);
+
+            return (addresses.Select(x => new BlacklistedAddress(x.RowKey, x.Reason)), continuationToken);
         }
 
         public async Task<BlacklistedAddress> TryGetAsync(

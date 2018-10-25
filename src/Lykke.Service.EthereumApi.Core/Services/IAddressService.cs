@@ -2,6 +2,7 @@
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Lykke.Service.EthereumApi.Core.Domain;
+using Lykke.Service.EthereumCommon.Core.Domain;
 
 namespace Lykke.Service.EthereumApi.Core.Services
 {

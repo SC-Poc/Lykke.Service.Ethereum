@@ -1,3 +1,5 @@
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using AzureStorage;
 using AzureStorage.Tables;
@@ -60,6 +62,17 @@ namespace Lykke.Service.EthereumCommon.AzureRepositories
             );
 
             return entity != null;
+        }
+
+        public async Task<(IEnumerable<string> Addresses, string ContinuationToken)> GetAllAsync(
+            int take,
+            string continuationToken)
+        {
+            IEnumerable<WhitelistedAddressEntity> addresses;
+            
+            (addresses, continuationToken) = await _whitelistedAddresses.GetDataWithContinuationTokenAsync(take, continuationToken);
+
+            return (addresses.Select(x => x.RowKey), continuationToken);
         }
 
         public Task<bool> RemoveIfExistsAsync(string address)

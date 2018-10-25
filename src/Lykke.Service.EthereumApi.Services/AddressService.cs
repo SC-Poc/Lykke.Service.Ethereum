@@ -1,9 +1,11 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Lykke.Service.EthereumApi.Core.Domain;
 using Lykke.Service.EthereumApi.Core.Services;
 using Lykke.Service.EthereumCommon.Core;
+using Lykke.Service.EthereumCommon.Core.Domain;
 using Lykke.Service.EthereumCommon.Core.Repositories;
 
 
@@ -60,14 +62,14 @@ namespace Lykke.Service.EthereumApi.Services
             int take,
             string continuationToken)
         {
-            throw new System.NotImplementedException();
+            return _blacklistedAddressRepository.GetAllAsync(take, continuationToken);
         }
 
         public Task<(IEnumerable<string> WhitelistedAddresses, string ContinuationToken)> GetWhitelistedAddressesAsync(
             int take,
             string continuationToken)
         {
-            throw new System.NotImplementedException();
+            return _whitelistedAddressRepository.GetAllAsync(take, continuationToken);
         }
 
         public async Task<RemoveAddressResult> RemoveAddressFromBlacklistAsync(
@@ -103,7 +105,7 @@ namespace Lykke.Service.EthereumApi.Services
 
             if (blacklistedAddress != null)
             {
-                var reason = blacklistedAddress.Reason;
+                var reason = blacklistedAddress.BlacklistingReason;
 
                 return !string.IsNullOrEmpty(reason) ? reason : "Unspecified";
             }

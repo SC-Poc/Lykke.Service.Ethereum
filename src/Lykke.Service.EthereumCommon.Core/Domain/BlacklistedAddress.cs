@@ -7,11 +7,11 @@ namespace Lykke.Service.EthereumCommon.Core.Domain
             string reason)
         {
             Address = address;
-            Reason = reason;
+            BlacklistingReason = reason;
         }
         
         public string Address { get; }
         
-        public string Reason { get; }
+        public string BlacklistingReason { get; }
     }
 }
