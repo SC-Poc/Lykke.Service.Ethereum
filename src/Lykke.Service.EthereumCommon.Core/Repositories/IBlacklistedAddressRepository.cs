@@ -12,7 +12,7 @@ namespace Lykke.Service.EthereumCommon.Core.Repositories
 
         Task<bool> ContainsAsync(
             string address);
-
+        
         Task<(IEnumerable<BlacklistedAddress> Addresses, string ContinuationToken)> GetAllAsync(
             int take,
             string continuationToken);

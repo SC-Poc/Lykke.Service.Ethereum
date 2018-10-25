@@ -22,12 +22,12 @@ namespace Lykke.Service.EthereumApi.Services
         private readonly IBlockchainService _blockchainService;
         private readonly IChaosKitty _chaosKitty;
         private readonly SemaphoreSlim _gasAmountLock;
+        private readonly int _gasAmountReservePercentage;
         private readonly ILog _log;
         private readonly IReloadingManager<string> _maxGasAmountManager;
         private readonly BigInteger _minimalTransactionAmount;
         private readonly ITransactionMonitoringTaskRepository _transferTransactionMonitoringTaskRepository;
         private readonly ITransactionRepository _transactionRepository;
-        private readonly IWhitelistedAddressRepository _whitelistedAddressRepository;
 
         
         private BigInteger _maxGasAmount;
@@ -41,20 +41,19 @@ namespace Lykke.Service.EthereumApi.Services
             ILogFactory logFactory,
             Settings settings,
             ITransactionMonitoringTaskRepository transferTransactionMonitoringTaskRepository,
-            ITransactionRepository transactionRepository,
-            IWhitelistedAddressRepository whitelistedAddressRepository)
+            ITransactionRepository transactionRepository)
         {
             _addressService = addressService;
             _blockchainService = blockchainService;
             _chaosKitty = chaosKitty;
             _gasAmountLock = new SemaphoreSlim(1);
+            _gasAmountReservePercentage = settings.GasAmountReservePercentage;
             _log = logFactory.CreateLog(this);
             _maxGasAmount = BigInteger.Parse(settings.MaxGasAmountManager.CurrentValue);
             _maxGasAmountManager = settings.MaxGasAmountManager;
             _minimalTransactionAmount = settings.MinimalTransactionAmount;
             _transferTransactionMonitoringTaskRepository = transferTransactionMonitoringTaskRepository;
             _transactionRepository = transactionRepository;
-            _whitelistedAddressRepository = whitelistedAddressRepository;
             
             ValidateMaxGasAmount(_maxGasAmount);
         }
@@ -80,28 +79,18 @@ namespace Lykke.Service.EthereumApi.Services
                     return BuildTransactionResult.TargetAddressBlacklistedOrInvalid;
                 }
                 
-                // Get and validate required gas amount
-                
-                var gasAmountAndMaxGasAmount = await Task.WhenAll
-                (
-                    _blockchainService.EstimateGasAmountAsync(from, to, amount),
-                    ReloadMaxGasAmountAsync()
-                );
-                
-                var gasAmount = gasAmountAndMaxGasAmount[0];
-                var maxGasAmount = gasAmountAndMaxGasAmount[1];
+                // Calculate and validate required gas amount
 
-                if (gasAmount > maxGasAmount && !await _whitelistedAddressRepository.ContainsAsync(to))
+                var (gasAmount, gasAmountIsValid) = await CalculateAndValidateGasAmountAsync
+                (
+                    transactionId: transactionId,
+                    from: from,
+                    to: to,
+                    amount: amount
+                );
+
+                if (gasAmountIsValid)
                 {
-                    await BlacklistAddressIfNecessaryAsync
-                    (
-                        address: to,
-                        gasAmount: gasAmount,
-                        maxGasAmount: maxGasAmount
-                    );
-                    
-                    _log.Info($"Failed to build transaction [{transactionId}]: gas amount is too high.");
-                    
                     return BuildTransactionResult.GasAmountIsTooHigh;
                 }
 
@@ -273,18 +262,53 @@ namespace Lykke.Service.EthereumApi.Services
             return _transactionRepository.TryGetAsync(transactionId);
         }
         
-        private async Task BlacklistAddressIfNecessaryAsync(
-            string address,
-            BigInteger gasAmount,
-            BigInteger maxGasAmount)
+        private async Task<(BigInteger, bool)> CalculateAndValidateGasAmountAsync(
+            Guid transactionId,
+            string from,
+            string to,
+            BigInteger amount)
         {
-            if (!await _blockchainService.IsWalletAsync(address))
+            if (await _blockchainService.IsWalletAsync(to))
             {
-                await _addressService.AddAddressToBlacklistAsync
+                return (21000, true);
+            }
+            else
+            {
+                var gasAmountAndMaxGasAmount = await Task.WhenAll
                 (
-                    address: address,
-                    reason: $"Gas amount [{gasAmount}] exceeds maximal [{maxGasAmount}]."
+                    _blockchainService.EstimateGasAmountAsync(from, to, amount),
+                    ReloadMaxGasAmountAsync()
                 );
+                
+                var gasAmount = gasAmountAndMaxGasAmount[0];
+                var gasAmountWithReserve = gasAmount * (100 + _gasAmountReservePercentage) / 100;
+                var maxGasAmount = gasAmountAndMaxGasAmount[1];
+                var customMaxGasAmount = await _addressService.TryGetCustomMaxGasAmountAsync(to);
+                var addressIsWhitelisted = customMaxGasAmount.HasValue;
+
+                if (addressIsWhitelisted && customMaxGasAmount > maxGasAmount)
+                {
+                    maxGasAmount = customMaxGasAmount.Value;
+                }
+
+            
+                var gasAmountIsValid = gasAmount <= maxGasAmount;
+
+                if (!gasAmountIsValid)
+                {
+                    if (!addressIsWhitelisted)
+                    {
+                        await _addressService.AddAddressToBlacklistAsync
+                        (
+                            address: to,
+                            reason: $"Gas amount [{gasAmount}] exceeds maximal [{maxGasAmount}]."
+                        );
+                    }
+                
+                    _log.Info($"Failed to build transaction [{transactionId}]: estimated gas amount [{gasAmount}] is higher than maximal [{maxGasAmount}].");
+                }
+            
+                return (gasAmountWithReserve, gasAmountIsValid);
             }
         }
         
@@ -341,6 +365,8 @@ namespace Lykke.Service.EthereumApi.Services
 
         public class Settings
         {
+            public int GasAmountReservePercentage { get; set; }
+            
             public IReloadingManager<string> MaxGasAmountManager { get; set; }
             
             public BigInteger MinimalTransactionAmount { get; set; }

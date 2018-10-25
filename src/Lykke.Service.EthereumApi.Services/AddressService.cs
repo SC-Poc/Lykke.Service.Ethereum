@@ -1,7 +1,10 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using System.Numerics;
 using System.Threading.Tasks;
+using Common.Log;
 using JetBrains.Annotations;
+using Lykke.Common.Log;
 using Lykke.Service.EthereumApi.Core.Domain;
 using Lykke.Service.EthereumApi.Core.Services;
 using Lykke.Service.EthereumCommon.Core;
@@ -17,16 +20,19 @@ namespace Lykke.Service.EthereumApi.Services
         private readonly IBlacklistedAddressRepository _blacklistedAddressRepository;
         private readonly IWhitelistedAddressRepository _whitelistedAddressRepository;
         private readonly IBlockchainService _blockchainService;
-
+        private readonly ILog _log;
+        
         
         public AddressService(
             IBlacklistedAddressRepository blacklistedAddressRepository,
+            IBlockchainService blockchainService,
             IWhitelistedAddressRepository whitelistedAddressRepository,
-            IBlockchainService blockchainService)
+            ILogFactory logFactory)
         {
             _blacklistedAddressRepository = blacklistedAddressRepository;
-            _whitelistedAddressRepository = whitelistedAddressRepository;
             _blockchainService = blockchainService;
+            _whitelistedAddressRepository = whitelistedAddressRepository;
+            _log = logFactory.CreateLog(this);
         }
 
 
@@ -36,20 +42,24 @@ namespace Lykke.Service.EthereumApi.Services
         {
             if (await _blacklistedAddressRepository.AddIfNotExistsAsync(address, reason))
             {
+                _log.Info($"Address [{address}] has been blacklisted.");
+                
                 return AddAddressResult.Success;
             }
             else
             {
-                
                 return AddAddressResult.HasAlreadyBeenAdded;
             }
         }
-        
+
         public async Task<AddAddressResult> AddAddressToWhitelistAsync(
-            string address)
+            string address,
+            BigInteger maxGasAmount)
         {
-            if (await _whitelistedAddressRepository.AddIfNotExistsAsync(address))
+            if (await _whitelistedAddressRepository.AddIfNotExistsAsync(address, maxGasAmount))
             {
+                _log.Info($"Address [{address}] has been whitelisted.");
+                
                 return AddAddressResult.Success;
             }
             else
@@ -65,7 +75,7 @@ namespace Lykke.Service.EthereumApi.Services
             return _blacklistedAddressRepository.GetAllAsync(take, continuationToken);
         }
 
-        public Task<(IEnumerable<string> WhitelistedAddresses, string ContinuationToken)> GetWhitelistedAddressesAsync(
+        Task<(IEnumerable<WhitelistedAddress> WhitelistedAddresses, string ContinuationToken)> IAddressService.GetWhitelistedAddressesAsync(
             int take,
             string continuationToken)
         {
@@ -77,6 +87,8 @@ namespace Lykke.Service.EthereumApi.Services
         {
             if (await _blacklistedAddressRepository.RemoveIfExistsAsync(address))
             {
+                _log.Info($"Address [{address}] has been removed from blacklist.");
+                
                 return RemoveAddressResult.Success;
             }
             else
@@ -90,6 +102,8 @@ namespace Lykke.Service.EthereumApi.Services
         {
             if (await _whitelistedAddressRepository.RemoveIfExistsAsync(address))
             {
+                _log.Info($"Address [{address}] has been removed from whitelist.");
+                
                 return RemoveAddressResult.Success;
             }
             else
@@ -113,6 +127,14 @@ namespace Lykke.Service.EthereumApi.Services
             {
                 return null;
             }
+        }
+
+        public async Task<BigInteger?> TryGetCustomMaxGasAmountAsync(
+            string address)
+        {
+            var whitelistedAddress = await _whitelistedAddressRepository.TryGetAsync(address);
+
+            return whitelistedAddress?.MaxGasAmount;
         }
 
         public async Task<bool> ValidateAsync(

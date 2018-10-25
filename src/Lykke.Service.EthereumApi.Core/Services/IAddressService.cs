@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Numerics;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Lykke.Service.EthereumApi.Core.Domain;
@@ -9,29 +10,35 @@ namespace Lykke.Service.EthereumApi.Core.Services
     public interface IAddressService
     {
         Task<AddAddressResult> AddAddressToBlacklistAsync(
-            string address,
-            string reason);
+            [NotNull] string address,
+            [NotNull] string reason);
 
         Task<AddAddressResult> AddAddressToWhitelistAsync(
-            string address);
+            [NotNull] string address,
+            BigInteger maxGasAmount);
 
         Task<(IEnumerable<BlacklistedAddress> BlacklistedAddresses, string ContinuationToken)> GetBlacklistedAddressesAsync(
             int take,
-            string continuationToken);
+            [CanBeNull] string continuationToken);
         
-        Task<(IEnumerable<string> WhitelistedAddresses, string ContinuationToken)> GetWhitelistedAddressesAsync(
+        Task<(IEnumerable<WhitelistedAddress> WhitelistedAddresses, string ContinuationToken)> GetWhitelistedAddressesAsync(
             int take,
-            string continuationToken);
+            [CanBeNull] string continuationToken);
 
         Task<RemoveAddressResult> RemoveAddressFromBlacklistAsync(
-            string address);
+            [NotNull] string address);
 
         Task<RemoveAddressResult> RemoveAddressFromWhitelistAsync(
-            string address);
+            [NotNull] string address);
 
+        [ItemCanBeNull]
         Task<string> TryGetBlacklistingReason(
-            string address);
-        
+            [NotNull] string address);
+
+        [ItemCanBeNull]
+        Task<BigInteger?> TryGetCustomMaxGasAmountAsync(
+            [NotNull] string address);
+
         Task<bool> ValidateAsync(
             [NotNull] string address);
     }

@@ -26,7 +26,6 @@ namespace Lykke.Service.EthereumApi.Services
     [UsedImplicitly]
     public class BlockchainService : BlockchainServiceBase, IBlockchainService
     {
-        private readonly int _gasAmountReservePercentage;
         private readonly SemaphoreSlim _gasPriceLock;
         private readonly ILog _log;
         private readonly IReloadingManager<string> _maxGasPriceManager;
@@ -44,16 +43,6 @@ namespace Lykke.Service.EthereumApi.Services
         
             : base(settings.ParityNodeUrl)
         {
-            if (settings.GasAmountReservePercentage < 0 || settings.GasAmountReservePercentage > 100)
-            {
-                throw new ArgumentException
-                (
-                    "Should be in range of [0..100].",
-                    nameof(settings.GasAmountReservePercentage)
-                );
-            }
-            
-            _gasAmountReservePercentage = settings.GasAmountReservePercentage ?? 10;
             _gasPriceLock = new SemaphoreSlim(1);
             _log = logFactory.CreateLog(this);
             _maxGasPrice = BigInteger.Parse(settings.MaxGasPriceManager.CurrentValue);
@@ -149,26 +138,19 @@ namespace Lykke.Service.EthereumApi.Services
             string to,
             BigInteger amount)
         {
-            if (await IsWalletAsync(to))
-            {
-                return 21000;
-            }
-            else
-            {
-                var estimatedGasAmount = await SendRequestWithTelemetryAsync<HexBigInteger>
+            var estimatedGasAmount = await SendRequestWithTelemetryAsync<HexBigInteger>
+            (
+                Web3.Eth.Transactions.EstimateGas.BuildRequest(new CallInput
                 (
-                    Web3.Eth.Transactions.EstimateGas.BuildRequest(new CallInput
-                    (
-                        data: null,
-                        addressTo: to,
-                        addressFrom: from,
-                        gas: null,
-                        value: new HexBigInteger(amount)
-                    ))
-                );
+                    data: null,
+                    addressTo: to,
+                    addressFrom: from,
+                    gas: null,
+                    value: new HexBigInteger(amount)
+                ))
+            );
 
-                return estimatedGasAmount.Value * (100 + _gasAmountReservePercentage) / 100;
-            }
+            return estimatedGasAmount.Value;
         }
         
         public async Task<BigInteger> EstimateGasPriceAsync()
@@ -267,8 +249,6 @@ namespace Lykke.Service.EthereumApi.Services
 
         public class Settings
         {
-            public int? GasAmountReservePercentage { get; set; }
-            
             public IReloadingManager<string> MaxGasPriceManager { get; set; }
             
             public IReloadingManager<string> MinGasPriceManager { get; set; }
