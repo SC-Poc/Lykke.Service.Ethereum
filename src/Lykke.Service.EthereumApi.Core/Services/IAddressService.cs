@@ -20,7 +20,7 @@ namespace Lykke.Service.EthereumApi.Core.Services
         Task<(IEnumerable<BlacklistedAddress> BlacklistedAddresses, string ContinuationToken)> GetBlacklistedAddressesAsync(
             int take,
             [CanBeNull] string continuationToken);
-        
+
         Task<(IEnumerable<WhitelistedAddress> WhitelistedAddresses, string ContinuationToken)> GetWhitelistedAddressesAsync(
             int take,
             [CanBeNull] string continuationToken);

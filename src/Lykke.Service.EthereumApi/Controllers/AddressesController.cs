@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
+using System.Numerics;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Lykke.Service.BlockchainApi.Contract;
@@ -9,6 +10,8 @@ using Lykke.Service.BlockchainApi.Contract.Addresses;
 using Lykke.Service.EthereumApi.Core.Domain;
 using Lykke.Service.EthereumApi.Models;
 using Lykke.Service.EthereumApi.Core.Services;
+using Lykke.Service.EthereumCommon.Core;
+using Lykke.Service.EthereumCommon.Core.Extensions;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Http;
 
@@ -39,12 +42,12 @@ namespace Lykke.Service.EthereumApi.Controllers
 
         [HttpPost("blacklist/{address}")]
         public async Task<IActionResult> AddAddressToBlacklist(
-            AddressRequest request)
+            BlacklistAddressRequest request)
         {
             var result = await _addressService.AddAddressToBlacklistAsync
             (
-                address: request.Address,
-                reason: "Blacklisted via API."
+                address: request.Address.ToLowerInvariant(),
+                reason: request.BlacklistingReason
             );
 
             switch (result)
@@ -63,9 +66,13 @@ namespace Lykke.Service.EthereumApi.Controllers
         
         [HttpPost("whitelist/{address}")]
         public async Task<IActionResult> AddAddressToWhitelist(
-            AddressRequest request)
+            WhitelistAddressRequest request)
         {
-            var result = await _addressService.AddAddressToWhitelistAsync(request.Address);
+            var result = await _addressService.AddAddressToWhitelistAsync
+            (
+                address: request.Address.ToLowerInvariant(),
+                maxGasAmount: BigInteger.Parse(request.MaxGasAmount)
+            );
             
             switch (result)
             {
@@ -90,11 +97,11 @@ namespace Lykke.Service.EthereumApi.Controllers
             var result = new PaginationResponse<BlacklistedAddressResponse>()
             {
                 Continuation = continuationToken,
-                Items = addresses.Select(x => new BlacklistedAddressResponse
+                Items = addresses.SelectImmutableArray(x => new BlacklistedAddressResponse
                 {
-                    Address = x.Address,
+                    Address = Address.AddChecksum(x.Address),
                     BlacklistingReason = x.BlacklistingReason
-                }).ToImmutableArray()
+                })
             };
             
             return Ok(result);
@@ -104,7 +111,7 @@ namespace Lykke.Service.EthereumApi.Controllers
         public async Task<ActionResult<BlacklistingReasonResponse>> GetBlacklistingReason(
             AddressRequest request)
         {
-            var reason = await _addressService.TryGetBlacklistingReason(request.Address);
+            var reason = await _addressService.TryGetBlacklistingReason(request.Address.ToLowerInvariant());
 
             if (reason != null)
             {
@@ -128,10 +135,11 @@ namespace Lykke.Service.EthereumApi.Controllers
             var result = new PaginationResponse<WhitelistedAddressResponse>()
             {
                 Continuation = continuationToken,
-                Items = addresses.Select(x => new WhitelistedAddressResponse
+                Items = addresses.SelectImmutableArray(x => new WhitelistedAddressResponse
                 {
-                    Address = x
-                }).ToImmutableArray()
+                    Address = Address.AddChecksum(x.Address),
+                    MaxGasAmount = x.MaxGasAmount.ToString()
+                })
             };
             
             return Ok(result);
@@ -141,7 +149,7 @@ namespace Lykke.Service.EthereumApi.Controllers
         public async Task<IActionResult> RemoveAddressFromBlacklist(
             AddressRequest request)
         {
-            var result = await _addressService.RemoveAddressFromBlacklistAsync(request.Address);
+            var result = await _addressService.RemoveAddressFromBlacklistAsync(request.Address.ToLowerInvariant());
             
             switch (result)
             {
@@ -161,7 +169,7 @@ namespace Lykke.Service.EthereumApi.Controllers
         public async Task<IActionResult> RemoveAddressFromWhitelist(
             AddressRequest request)
         {
-            var result = await _addressService.RemoveAddressFromWhitelistAsync(request.Address);
+            var result = await _addressService.RemoveAddressFromWhitelistAsync(request.Address.ToLowerInvariant());
             
             switch (result)
             {

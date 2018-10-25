@@ -6,5 +6,6 @@
 	<s:Boolean x:Key="/Default/UserDictionary/Words/=Broadcasted/@EntryIndexedValue">True</s:Boolean>
 	<s:Boolean x:Key="/Default/UserDictionary/Words/=CALLCODE/@EntryIndexedValue">True</s:Boolean>
 	<s:Boolean x:Key="/Default/UserDictionary/Words/=DELEGATECALL/@EntryIndexedValue">True</s:Boolean>
+	
 	<s:Boolean x:Key="/Default/UserDictionary/Words/=Ethereum/@EntryIndexedValue">True</s:Boolean>
 	<s:Boolean x:Key="/Default/UserDictionary/Words/=Lykke/@EntryIndexedValue">True</s:Boolean></wpf:ResourceDictionary>

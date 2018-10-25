@@ -4,8 +4,17 @@ namespace Lykke.Service.EthereumCommon.Core.Domain
 {
     public class WhitelistedAddress
     {
-        public string Address { get; set; }
+        public WhitelistedAddress(
+            string address,
+            BigInteger maxGasAmount)
+        {
+            Address = address;
+            MaxGasAmount = maxGasAmount;
+        }
+
+
+        public string Address { get; }
         
-        public BigInteger MaxGasAmount { get; set; }
+        public BigInteger MaxGasAmount { get; }
     }
 }

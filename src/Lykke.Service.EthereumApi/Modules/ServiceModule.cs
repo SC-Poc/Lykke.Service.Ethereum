@@ -149,7 +149,6 @@ namespace Lykke.Service.EthereumApi.Modules
             builder
                 .RegisterInstance(new BlockchainService.Settings
                 {
-                    GasAmountReservePercentage = ServiceSettings.GasAmountReservePercentage,
                     MaxGasPriceManager = _appSettings.Nested(x => x.ApiService.MaximalGasPrice),
                     MinGasPriceManager = _appSettings.Nested(x => x.ApiService.MinimalGasPrice),
                     ParityNodeUrl = ServiceSettings.ParityNodeUrl
@@ -174,6 +173,7 @@ namespace Lykke.Service.EthereumApi.Modules
             builder
                 .RegisterInstance(new TransactionService.Settings
                 {
+                    GasAmountReservePercentage = ServiceSettings.GasAmountReservePercentage,
                     MaxGasAmountManager = _appSettings.Nested(x => x.ApiService.MaximalGasAmount),
                     MinimalTransactionAmount = BigInteger.Parse(ServiceSettings.MinimalTransactionAmount)
                 })

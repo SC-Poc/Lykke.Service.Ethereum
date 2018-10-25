@@ -1,9 +1,7 @@
 namespace Lykke.Service.EthereumApi.Models
 {
-    public class WhitelistedAddressResponse
+    public class WhitelistAddressRequest : AddressRequest
     {
-        public string Address { get; set; }
-        
         public string MaxGasAmount { get; set; }
     }
 }

@@ -142,6 +142,8 @@ namespace Lykke.Service.EthereumApi.Services
         {
             if (Address.ValidateFormatAndChecksum(address, true, true))
             {
+                address = address.ToLowerInvariant();
+                
                 return await _blockchainService.IsWalletAsync(address)
                    ||  await _whitelistedAddressRepository.ContainsAsync(address)
                    || !await _blacklistedAddressRepository.ContainsAsync(address);

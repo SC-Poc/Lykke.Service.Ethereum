@@ -1,11 +1,13 @@
 using System.Collections.Generic;
 using System.Linq;
+using System.Numerics;
 using System.Threading.Tasks;
 using AzureStorage;
 using AzureStorage.Tables;
 using Common;
 using Lykke.Common.Log;
 using Lykke.Service.EthereumCommon.AzureRepositories.Entities;
+using Lykke.Service.EthereumCommon.Core.Domain;
 using Lykke.Service.EthereumCommon.Core.Repositories;
 using Lykke.SettingsReader;
 
@@ -37,7 +39,8 @@ namespace Lykke.Service.EthereumCommon.AzureRepositories
         }
         
         public Task<bool> AddIfNotExistsAsync(
-            string address)
+            string address,
+            BigInteger maxGasAmount)
         {
             var (partitionKey, rowKey) = GetKeys(address);
             
@@ -51,20 +54,13 @@ namespace Lykke.Service.EthereumCommon.AzureRepositories
             );
         }
 
-        public async Task<bool> ContainsAsync(string address)
+        public async Task<bool> ContainsAsync(
+            string address)
         {
-            var (partitionKey, rowKey) = GetKeys(address);
-
-            var entity = await _whitelistedAddresses.GetDataAsync
-            (
-                partition: partitionKey,
-                row: rowKey
-            );
-
-            return entity != null;
+            return (await TryGetAsync(address)) != null;
         }
 
-        public async Task<(IEnumerable<string> Addresses, string ContinuationToken)> GetAllAsync(
+        public async Task<(IEnumerable<WhitelistedAddress> Addresses, string ContinuationToken)> GetAllAsync(
             int take,
             string continuationToken)
         {
@@ -72,7 +68,7 @@ namespace Lykke.Service.EthereumCommon.AzureRepositories
             
             (addresses, continuationToken) = await _whitelistedAddresses.GetDataWithContinuationTokenAsync(take, continuationToken);
 
-            return (addresses.Select(x => x.RowKey), continuationToken);
+            return (addresses.Select(x => new WhitelistedAddress(x.RowKey, x.MaxGasAmount)), continuationToken);
         }
 
         public Task<bool> RemoveIfExistsAsync(string address)
@@ -84,6 +80,31 @@ namespace Lykke.Service.EthereumCommon.AzureRepositories
                 partitionKey: partitionKey,
                 rowKey: rowKey
             );
+        }
+
+        public async Task<WhitelistedAddress> TryGetAsync(
+            string address)
+        {
+            var (partitionKey, rowKey) = GetKeys(address);
+
+            var entity = await _whitelistedAddresses.GetDataAsync
+            (
+                partition: partitionKey,
+                row: rowKey
+            );
+
+            if (entity != null)
+            {
+                return new WhitelistedAddress
+                (
+                    address: entity.PartitionKey,
+                    maxGasAmount: entity.MaxGasAmount
+                );
+            }
+            else
+            {
+                return null;
+            }
         }
 
         #region Key Builders
