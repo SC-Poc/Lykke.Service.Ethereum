@@ -34,7 +34,7 @@
     <DefineConstants>ETH</DefineConstants>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="Lykke.Common" Version="7.1.0" />
+    <PackageReference Include="Lykke.Common" Version="7.3.0" />
     <PackageReference Include="Lykke.Service.BlockchainSignFacade.Client" Version="1.1.3" />
   </ItemGroup>
   <ItemGroup>
