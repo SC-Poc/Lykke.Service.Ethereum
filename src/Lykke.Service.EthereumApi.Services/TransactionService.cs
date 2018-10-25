@@ -49,7 +49,7 @@ namespace Lykke.Service.EthereumApi.Services
             _chaosKitty = chaosKitty;
             _gasAmountLock = new SemaphoreSlim(1);
             _log = logFactory.CreateLog(this);
-            _maxGasAmount = BigInteger.Parse(_maxGasAmountManager.CurrentValue);
+            _maxGasAmount = BigInteger.Parse(settings.MaxGasAmountManager.CurrentValue);
             _maxGasAmountManager = settings.MaxGasAmountManager;
             _minimalTransactionAmount = settings.MinimalTransactionAmount;
             _transferTransactionMonitoringTaskRepository = transferTransactionMonitoringTaskRepository;

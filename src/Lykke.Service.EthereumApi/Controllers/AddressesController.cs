@@ -1,6 +1,10 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Collections.Immutable;
+using System.Linq;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
+using Lykke.Service.BlockchainApi.Contract;
 using Lykke.Service.BlockchainApi.Contract.Addresses;
 using Lykke.Service.EthereumApi.Core.Domain;
 using Lykke.Service.EthereumApi.Models;
@@ -77,6 +81,25 @@ namespace Lykke.Service.EthereumApi.Controllers
             }
         }
 
+        [HttpGet("blacklist")]
+        public async Task<ActionResult<PaginationResponse<BlacklistedAddressResponse>>> GetBlacklistedAddresses(
+            PaginationRequest request)
+        {
+            var (addresses, continuationToken) = await _addressService.GetBlacklistedAddressesAsync(request.Take, request.Continuation);
+            
+            var result = new PaginationResponse<BlacklistedAddressResponse>()
+            {
+                Continuation = continuationToken,
+                Items = addresses.Select(x => new BlacklistedAddressResponse
+                {
+                    Address = x.Address,
+                    BlacklistingReason = x.BlacklistingReason
+                }).ToImmutableArray()
+            };
+            
+            return Ok(result);
+        }
+        
         [HttpGet("blacklist/{address}/reason")]
         public async Task<ActionResult<BlacklistingReasonResponse>> GetBlacklistingReason(
             AddressRequest request)
@@ -94,6 +117,24 @@ namespace Lykke.Service.EthereumApi.Controllers
             {
                 return NoContent();
             }
+        }
+        
+        [HttpGet("whitelist")]
+        public async Task<ActionResult<PaginationResponse<WhitelistedAddressResponse>>> GetWhitelistedAddresses(
+            PaginationRequest request)
+        {
+            var (addresses, continuationToken) = await _addressService.GetWhitelistedAddressesAsync(request.Take, request.Continuation);
+            
+            var result = new PaginationResponse<WhitelistedAddressResponse>()
+            {
+                Continuation = continuationToken,
+                Items = addresses.Select(x => new WhitelistedAddressResponse
+                {
+                    Address = x
+                }).ToImmutableArray()
+            };
+            
+            return Ok(result);
         }
         
         [HttpDelete("blacklist/{address}")]

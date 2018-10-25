@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System.Collections.Generic;
+using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Lykke.Service.EthereumApi.Core.Domain;
 using Lykke.Service.EthereumApi.Core.Services;
@@ -37,6 +38,7 @@ namespace Lykke.Service.EthereumApi.Services
             }
             else
             {
+                
                 return AddAddressResult.HasAlreadyBeenAdded;
             }
         }
@@ -52,6 +54,20 @@ namespace Lykke.Service.EthereumApi.Services
             {
                 return AddAddressResult.HasAlreadyBeenAdded;
             }
+        }
+
+        public Task<(IEnumerable<BlacklistedAddress> BlacklistedAddresses, string ContinuationToken)> GetBlacklistedAddressesAsync(
+            int take,
+            string continuationToken)
+        {
+            throw new System.NotImplementedException();
+        }
+
+        public Task<(IEnumerable<string> WhitelistedAddresses, string ContinuationToken)> GetWhitelistedAddressesAsync(
+            int take,
+            string continuationToken)
+        {
+            throw new System.NotImplementedException();
         }
 
         public async Task<RemoveAddressResult> RemoveAddressFromBlacklistAsync(

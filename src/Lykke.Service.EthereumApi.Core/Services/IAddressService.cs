@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System.Collections.Generic;
+using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Lykke.Service.EthereumApi.Core.Domain;
 
@@ -12,6 +13,14 @@ namespace Lykke.Service.EthereumApi.Core.Services
 
         Task<AddAddressResult> AddAddressToWhitelistAsync(
             string address);
+
+        Task<(IEnumerable<BlacklistedAddress> BlacklistedAddresses, string ContinuationToken)> GetBlacklistedAddressesAsync(
+            int take,
+            string continuationToken);
+        
+        Task<(IEnumerable<string> WhitelistedAddresses, string ContinuationToken)> GetWhitelistedAddressesAsync(
+            int take,
+            string continuationToken);
 
         Task<RemoveAddressResult> RemoveAddressFromBlacklistAsync(
             string address);
