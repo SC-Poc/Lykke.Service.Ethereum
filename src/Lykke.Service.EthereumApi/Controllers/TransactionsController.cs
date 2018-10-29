@@ -64,8 +64,12 @@ namespace Lykke.Service.EthereumApi.Controllers
                     
                     case BuildTransactionError.GasAmountIsTooHigh:
                         return BadRequest(
-                            BlockchainErrorResponse.FromUnknownError(
-                                "Required gas amount is too high."));
+                            BlockchainErrorResponse.FromKnownError(
+                                BlockchainErrorCode.AmountIsTooSmall));
+                        // TODO: Replace with correct response, as soon, as it will be implemented in common part
+                        //return BadRequest(
+                        //    BlockchainErrorResponse.FromUnknownError(
+                        //        "Required gas amount is too high."));
                     
                     case BuildTransactionError.TargetAddressBlacklistedOrInvalid:
                         return BadRequest(
@@ -199,7 +203,9 @@ namespace Lykke.Service.EthereumApi.Controllers
                 if (!string.IsNullOrEmpty(txState.Error))
                 {
                     response.Error = txState.Error;
-                    response.ErrorCode = BlockchainErrorCode.Unknown;
+                    response.ErrorCode = BlockchainErrorCode.AmountIsTooSmall;
+                    // TODO: Replace with correct response, as soon, as it will be implemented in common part
+                    //response.ErrorCode = BlockchainErrorCode.Unknown;
                 }
                 
                 return response;

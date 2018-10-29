@@ -89,7 +89,7 @@ namespace Lykke.Service.EthereumApi.Services
                     amount: amount
                 );
 
-                if (gasAmountIsValid)
+                if (!gasAmountIsValid)
                 {
                     return BuildTransactionResult.GasAmountIsTooHigh;
                 }
