@@ -274,41 +274,51 @@ namespace Lykke.Service.EthereumApi.Services
             }
             else
             {
-                var gasAmountAndMaxGasAmount = await Task.WhenAll
-                (
-                    _blockchainService.EstimateGasAmountAsync(from, to, amount),
-                    ReloadMaxGasAmountAsync()
-                );
-                
-                var gasAmount = gasAmountAndMaxGasAmount[0];
-                var gasAmountWithReserve = gasAmount * (100 + _gasAmountReservePercentage) / 100;
-                var maxGasAmount = gasAmountAndMaxGasAmount[1];
-                var customMaxGasAmount = await _addressService.TryGetCustomMaxGasAmountAsync(to);
-                var addressIsWhitelisted = customMaxGasAmount.HasValue;
+                var gasAmount = await _blockchainService.TryEstimateGasAmountAsync(from, to, amount);
 
-                if (addressIsWhitelisted && customMaxGasAmount > maxGasAmount)
+                if (gasAmount.HasValue)
                 {
-                    maxGasAmount = customMaxGasAmount.Value;
-                }
+                    var gasAmountWithReserve = gasAmount.Value * (100 + _gasAmountReservePercentage) / 100;
+                    var maxGasAmount = await ReloadMaxGasAmountAsync();
+                    var customMaxGasAmount = await _addressService.TryGetCustomMaxGasAmountAsync(to);
+                    var addressIsWhitelisted = customMaxGasAmount.HasValue;
 
-            
-                var gasAmountIsValid = gasAmount <= maxGasAmount;
-
-                if (!gasAmountIsValid)
-                {
-                    if (!addressIsWhitelisted)
+                    if (addressIsWhitelisted && customMaxGasAmount > maxGasAmount)
                     {
-                        await _addressService.AddAddressToBlacklistAsync
-                        (
-                            address: to,
-                            reason: $"Gas amount [{gasAmount}] exceeds maximal [{maxGasAmount}]."
-                        );
+                        maxGasAmount = customMaxGasAmount.Value;
                     }
-                
-                    _log.Info($"Failed to build transaction [{transactionId}]: estimated gas amount [{gasAmount}] is higher than maximal [{maxGasAmount}].");
-                }
+
             
-                return (gasAmountWithReserve, gasAmountIsValid);
+                    var gasAmountIsValid = gasAmount.Value <= maxGasAmount;
+
+                    if (!gasAmountIsValid)
+                    {
+                        if (!addressIsWhitelisted)
+                        {
+                            await _addressService.AddAddressToBlacklistAsync
+                            (
+                                address: to,
+                                reason: $"Gas amount [{gasAmount}] exceeds maximal [{maxGasAmount}]."
+                            );
+                        }
+                
+                        _log.Info($"Failed to build transaction [{transactionId}]: estimated gas amount [{gasAmount}] is higher than maximal [{maxGasAmount}].");
+                    }
+            
+                    return (gasAmountWithReserve, gasAmountIsValid);
+                }
+                else
+                {
+                    await _addressService.AddAddressToBlacklistAsync
+                    (
+                        address: to,
+                        reason: "Gas amount can not be estimated."
+                    );
+                
+                    _log.Info($"Failed to build transaction [{transactionId}]: gas amount can not be estimated.");
+                    
+                    return (0, false);
+                }
             }
         }
         

@@ -133,24 +133,31 @@ namespace Lykke.Service.EthereumApi.Services
         }
 
 
-        public async Task<BigInteger> EstimateGasAmountAsync(
+        public async Task<BigInteger?> TryEstimateGasAmountAsync(
             string from,
             string to,
             BigInteger amount)
         {
-            var estimatedGasAmount = await SendRequestWithTelemetryAsync<HexBigInteger>
-            (
-                Web3.Eth.Transactions.EstimateGas.BuildRequest(new CallInput
+            try
+            {
+                var estimatedGasAmount = await SendRequestWithTelemetryAsync<HexBigInteger>
                 (
-                    data: null,
-                    addressTo: to,
-                    addressFrom: from,
-                    gas: null,
-                    value: new HexBigInteger(amount)
-                ))
-            );
+                    Web3.Eth.Transactions.EstimateGas.BuildRequest(new CallInput
+                    (
+                        data: null,
+                        addressTo: to,
+                        addressFrom: from,
+                        gas: null, 
+                        value: new HexBigInteger(amount)
+                    ))
+                );
 
-            return estimatedGasAmount.Value;
+                return estimatedGasAmount.Value;
+            }
+            catch (RpcResponseException e) when (e.RpcError.Code == -32016)
+            {
+                return null;
+            }
         }
         
         public async Task<BigInteger> EstimateGasPriceAsync()
