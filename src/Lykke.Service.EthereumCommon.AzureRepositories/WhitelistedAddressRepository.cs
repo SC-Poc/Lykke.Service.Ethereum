@@ -13,7 +13,7 @@ using Lykke.SettingsReader;
 
 namespace Lykke.Service.EthereumCommon.AzureRepositories
 {
-    public class WhitelistedAddressRepository : IWhitelistedAddressRepository
+    public class WhitelistedAddressRepository : RepositoryBase, IWhitelistedAddressRepository
     {
         private readonly INoSQLTableStorage<WhitelistedAddressEntity> _whitelistedAddresses;
 

@@ -4,6 +4,7 @@ using FluentValidation;
 using JetBrains.Annotations;
 using Lykke.Service.EthereumApi.Models;
 using Microsoft.WindowsAzure.Storage.Table;
+using Nethereum.Hex.HexConvertors.Extensions;
 using Newtonsoft.Json;
 
 namespace Lykke.Service.EthereumApi.Validation
@@ -28,7 +29,7 @@ namespace Lykke.Service.EthereumApi.Validation
             {
                 if (!string.IsNullOrEmpty(token))
                 {
-                    var decodedToken = token.StringToHex();
+                    var decodedToken = token.HexToUTF8String();
 
                     JsonConvert.DeserializeObject<TableContinuationToken>(decodedToken);
                 }

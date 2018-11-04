@@ -12,7 +12,7 @@ using Lykke.SettingsReader;
 
 namespace Lykke.Service.EthereumCommon.AzureRepositories
 {
-    public class BlacklistedAddressRepository : IBlacklistedAddressRepository
+    public class BlacklistedAddressRepository : RepositoryBase, IBlacklistedAddressRepository
     {
         private readonly INoSQLTableStorage<BlacklistedAddressEntity> _blacklistedAddresses;
 
