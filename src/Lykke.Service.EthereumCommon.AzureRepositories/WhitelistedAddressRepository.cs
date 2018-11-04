@@ -48,6 +48,8 @@ namespace Lykke.Service.EthereumCommon.AzureRepositories
             (
                 new WhitelistedAddressEntity
                 {
+                    MaxGasAmount = maxGasAmount,
+                    
                     PartitionKey = partitionKey,
                     RowKey = rowKey
                 }
