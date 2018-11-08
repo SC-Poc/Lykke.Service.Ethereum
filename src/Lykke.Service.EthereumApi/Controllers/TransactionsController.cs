@@ -73,8 +73,12 @@ namespace Lykke.Service.EthereumApi.Controllers
                     
                     case BuildTransactionError.TargetAddressBlacklistedOrInvalid:
                         return BadRequest(
-                            BlockchainErrorResponse.FromUnknownError(
-                                "Target address is either blacklisted, or invalid."));
+                            BlockchainErrorResponse.FromKnownError(
+                                BlockchainErrorCode.AmountIsTooSmall));
+                        // TODO: Replace with correct response, as soon, as it will be implemented in common part
+                        //return BadRequest(
+                        //    BlockchainErrorResponse.FromUnknownError(
+                        //        "Target address is either blacklisted, or invalid."));
                     
                     case BuildTransactionError.TransactionHasBeenBroadcasted:
                         return Conflict(
