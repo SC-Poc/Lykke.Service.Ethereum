@@ -56,6 +56,17 @@ namespace Lykke.Service.EthereumApi.Modules
                 .As<IBalanceObservationTaskRepository>()
                 .SingleInstance();
             
+            // BlacklistedAddressRepository
+            
+            builder
+                .Register(x => BlacklistedAddressRepository.Create
+                (
+                    connectionString: connectionString,
+                    logFactory: x.Resolve<ILogFactory>()
+                ))
+                .As<IBlacklistedAddressRepository>()
+                .SingleInstance();
+            
             // ObservableBalanceRepository
 
             builder
@@ -97,6 +108,17 @@ namespace Lykke.Service.EthereumApi.Modules
                     logFactory: x.Resolve<ILogFactory>()
                 ))
                 .As<ITransactionReceiptRepository>()
+                .SingleInstance();
+
+            // WhitelistedAddressRepository
+            
+            builder
+                .Register(x => WhitelistedAddressRepository.Create
+                (
+                    connectionString: connectionString,
+                    logFactory: x.Resolve<ILogFactory>()
+                ))
+                .As<IWhitelistedAddressRepository>()
                 .SingleInstance();
         }
 
@@ -151,6 +173,8 @@ namespace Lykke.Service.EthereumApi.Modules
             builder
                 .RegisterInstance(new TransactionService.Settings
                 {
+                    GasAmountReservePercentage = ServiceSettings.GasAmountReservePercentage,
+                    MaxGasAmountManager = _appSettings.Nested(x => x.ApiService.MaximalGasAmount),
                     MinimalTransactionAmount = BigInteger.Parse(ServiceSettings.MinimalTransactionAmount)
                 })
                 .AsSelf();

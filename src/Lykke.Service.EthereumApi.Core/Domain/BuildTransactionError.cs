@@ -4,6 +4,8 @@
     {
         AmountIsTooSmall,
         BalanceIsNotEnough,
+        GasAmountIsTooHigh,
+        TargetAddressBlacklistedOrInvalid,
         TransactionHasBeenBroadcasted,
         TransactionHasBeenDeleted,
     }

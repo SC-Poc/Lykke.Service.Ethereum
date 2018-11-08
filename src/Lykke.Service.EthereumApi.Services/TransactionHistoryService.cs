@@ -11,13 +11,13 @@ namespace Lykke.Service.EthereumApi.Services
     [UsedImplicitly]
     public class TransactionHistoryService : ITransactionHistoryService
     {
-        private readonly ITransactionReceiptRepository _transfactionReceiptRepository;
+        private readonly ITransactionReceiptRepository _transactionReceiptRepository;
 
         
         public TransactionHistoryService(
-            ITransactionReceiptRepository transfactionReceiptRepository)
+            ITransactionReceiptRepository transactionReceiptRepository)
         {
-            _transfactionReceiptRepository = transfactionReceiptRepository;
+            _transactionReceiptRepository = transactionReceiptRepository;
         }
 
         
@@ -55,14 +55,14 @@ namespace Lykke.Service.EthereumApi.Services
             int take,
             string afterHash)
         {
-            var continuationToken = await _transfactionReceiptRepository.CreateContinuationTokenAsync
+            var continuationToken = await _transactionReceiptRepository.CreateContinuationTokenAsync
             (
                 address,
                 transactionDirection,
                 afterHash
             );
 
-            var (transactionReceipts, _) = await _transfactionReceiptRepository.GetAsync
+            var (transactionReceipts, _) = await _transactionReceiptRepository.GetAsync
             (
                 address,
                 transactionDirection,

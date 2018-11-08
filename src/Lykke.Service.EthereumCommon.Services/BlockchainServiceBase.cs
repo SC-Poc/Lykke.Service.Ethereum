@@ -9,14 +9,14 @@ using Nethereum.Parity;
 
 namespace Lykke.Service.EthereumCommon.Services
 {
-    public abstract class BlockhainServiceBase
+    public abstract class BlockchainServiceBase
     {
         private readonly string _parityNodeUrl;
         private readonly TelemetryClient _telemetryClient;
         
         protected readonly Web3Parity Web3;
         
-        protected BlockhainServiceBase(
+        protected BlockchainServiceBase(
             string parityNodeUrl)
         {
             _parityNodeUrl = parityNodeUrl;
@@ -31,7 +31,7 @@ namespace Lykke.Service.EthereumCommon.Services
         {
             var code = await SendRequestWithTelemetryAsync<string>
             (
-                Web3.Eth.GetCode.BuildRequest(Guid.NewGuid(), address)
+                Web3.Eth.GetCode.BuildRequest(Guid.NewGuid(), address, "latest")
             );
             
             return code == "0x";

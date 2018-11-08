@@ -20,5 +20,8 @@ namespace Lykke.Service.EthereumWorker.Core.Services
         
         Task<IEnumerable<TransactionReceipt>> GetTransactionReceiptsAsync(
             BigInteger blockNumber);
+
+        Task<bool> IsWalletAsync(
+            string address);
     }
 }

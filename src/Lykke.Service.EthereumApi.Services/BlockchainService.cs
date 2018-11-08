@@ -24,7 +24,7 @@ using TransactionReceipt = Nethereum.RPC.Eth.DTOs.TransactionReceipt;
 namespace Lykke.Service.EthereumApi.Services
 {
     [UsedImplicitly]
-    public class BlockchainService : BlockhainServiceBase, IBlockchainService
+    public class BlockchainService : BlockchainServiceBase, IBlockchainService
     {
         private readonly SemaphoreSlim _gasPriceLock;
         private readonly ILog _log;
@@ -104,12 +104,13 @@ namespace Lykke.Service.EthereumApi.Services
             string from,
             string to,
             BigInteger amount,
+            BigInteger gasAmount,
             BigInteger gasPrice)
         {
             var transaction = new UnsignedTransaction
             {
                 Amount = amount,
-                GasAmount = Constants.GasAmount,
+                GasAmount = gasAmount,
                 GasPrice = gasPrice,
                 Nonce = await GetNextNonceAsync(from),
                 To = to
@@ -129,6 +130,34 @@ namespace Lykke.Service.EthereumApi.Services
             );
 
             return transaction != null;
+        }
+
+
+        public async Task<BigInteger?> TryEstimateGasAmountAsync(
+            string from,
+            string to,
+            BigInteger amount)
+        {
+            try
+            {
+                var estimatedGasAmount = await SendRequestWithTelemetryAsync<HexBigInteger>
+                (
+                    Web3.Eth.Transactions.EstimateGas.BuildRequest(new CallInput
+                    (
+                        data: null,
+                        addressTo: to,
+                        addressFrom: from,
+                        gas: null, 
+                        value: new HexBigInteger(amount)
+                    ))
+                );
+
+                return estimatedGasAmount.Value;
+            }
+            catch (RpcResponseException e) when (e.RpcError.Code == -32016)
+            {
+                return null;
+            }
         }
         
         public async Task<BigInteger> EstimateGasPriceAsync()

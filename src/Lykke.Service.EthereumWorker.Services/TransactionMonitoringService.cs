@@ -15,6 +15,7 @@ namespace Lykke.Service.EthereumWorker.Services
     [UsedImplicitly]
     public class TransactionMonitoringService : ITransactionMonitoringService
     {
+        private readonly IBlacklistedAddressRepository _blacklistedAddressRepository;
         private readonly IBlockchainService _blockchainService;
         private readonly ILog _log;
         private readonly ITransactionMonitoringTaskRepository _transactionMonitoringTaskRepository;
@@ -22,11 +23,13 @@ namespace Lykke.Service.EthereumWorker.Services
 
         
         public TransactionMonitoringService(
+            IBlacklistedAddressRepository blacklistedAddressRepository,
             IBlockchainService blockchainService,
             ILogFactory logFactory,
             ITransactionMonitoringTaskRepository transactionMonitoringTaskRepository,
             ITransactionRepository transactionRepository)
         {
+            _blacklistedAddressRepository = blacklistedAddressRepository;
             _blockchainService = blockchainService;
             _log = logFactory.CreateLog(this);
             _transactionMonitoringTaskRepository = transactionMonitoringTaskRepository;
@@ -61,6 +64,8 @@ namespace Lykke.Service.EthereumWorker.Services
                                 transactionResult.BlockNumber,
                                 transactionResult.Error
                             );
+
+                            await BlacklistTargetAddressIfNecessaryAsync(transaction);
                         }
 
                         await _transactionRepository.UpdateAsync(transaction);
@@ -137,6 +142,22 @@ namespace Lykke.Service.EthereumWorker.Services
             }
         }
 
+        private async Task BlacklistTargetAddressIfNecessaryAsync(
+            Transaction transaction)
+        {
+            var address = transaction.To;
+            var reason = $"Transaction {transaction.Hash} failed.";
+            
+            if (!await _blockchainService.IsWalletAsync(address))
+            {
+                await _blacklistedAddressRepository.AddIfNotExistsAsync
+                (
+                    address: address,
+                    reason: reason
+                );
+            }
+        }
+        
         private void LogTransactionResult(
             Guid transactionId,
             TransactionResult transactionResult)
