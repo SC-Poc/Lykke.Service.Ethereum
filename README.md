@@ -1,2 +1,2 @@
 # Lykke.Service.Ethereum
-Ethereum integration for BIL
+Ethereum integration for BIL.
