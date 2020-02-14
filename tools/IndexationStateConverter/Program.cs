@@ -12,7 +12,7 @@ namespace IndexationStateConverter
 {
     class Program
     {
-        static async Task Main(string[] args)
+        static void Main(string[] args)
         {
             Console.WriteLine("Usage: dotnet IndexationStateEditor.dll read|write <bil-ethereum-worker-azure-storage-connection-string> ");
 
@@ -27,11 +27,11 @@ namespace IndexationStateConverter
 
             if (args[0] == "read")
             {
-                await Read(repository);
+                Read(repository).Wait();
             }
             else if (args[0] == "write")
             {
-                await Write(repository);
+                Write(repository).Wait();
             }
             else
             {
