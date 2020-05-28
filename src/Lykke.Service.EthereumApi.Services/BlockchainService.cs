@@ -16,7 +16,10 @@ using Nethereum.Hex.HexConvertors.Extensions;
 using Nethereum.Hex.HexTypes;
 using Nethereum.JsonRpc.Client;
 using Nethereum.RPC.Eth.DTOs;
+using Nethereum.Hex.HexConvertors.Extensions;
+using Nethereum.Signer;
 
+using NethereumTransaction = Nethereum.Signer.Transaction;
 using Transaction = Nethereum.RPC.Eth.DTOs.Transaction;
 using TransactionReceipt = Nethereum.RPC.Eth.DTOs.TransactionReceipt;
 
@@ -107,17 +110,18 @@ namespace Lykke.Service.EthereumApi.Services
             BigInteger gasAmount,
             BigInteger gasPrice)
         {
-            var transaction = new UnsignedTransaction
-            {
-                Amount = amount,
-                GasAmount = gasAmount,
-                GasPrice = gasPrice,
-                Nonce = await GetNextNonceAsync(from),
-                To = to
-            };
+            var transaction = new NethereumTransaction
+            (
+                to: to,
+                amount: amount,
+                nonce: await GetNextNonceAsync(from),
+                gasPrice: gasPrice,
+                gasLimit: gasAmount,
+                data: null
+            );
 
-            return MessagePackSerializer
-                .Serialize(transaction)
+            return transaction
+                .GetRLPEncoded()
                 .ToHex(prefix: true);
         }
 
