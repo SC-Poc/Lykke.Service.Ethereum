@@ -47,9 +47,9 @@ namespace Lykke.Service.EthereumApi.Validation
         public static void MustBeHexString<T>(
             this IRuleBuilderInitial<T, string> ruleBuilder)
         {
-            ruleBuilder
-                .Must(@string => HexStringExpression.IsMatch(@string))
-                .WithMessage(x => "Must be a hex string.");
+            //ruleBuilder
+            //    .Must(@string => HexStringExpression.IsMatch(@string))
+            //    .WithMessage(x => "Must be a hex string.");
         }
     }
 }
